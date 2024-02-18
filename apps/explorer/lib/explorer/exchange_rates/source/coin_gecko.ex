@@ -103,18 +103,16 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
     case Source.http_request(url) do
       {:ok, data} = resp ->
-        Logger.info("get_sbch_price success: #{inspect(data)}")
-
         if is_map(data) do
           Logger.info("get_sbch_price success: #{inspect(data["price"])}")
           current_price = data["price"]
         else
-          Logger.warn("get_sbch_price failed, data is not a map")
+          # Logger.warn("get_sbch_price failed, data is not a map")
           0
         end
 
       _ ->
-        Logger.error("get_sbch_price failed, unexpected response format")
+        # Logger.error("get_sbch_price failed, unexpected response format")
         nil
     end
   end
