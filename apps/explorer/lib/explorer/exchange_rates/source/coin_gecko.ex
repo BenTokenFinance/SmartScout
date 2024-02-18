@@ -106,12 +106,12 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
           current_price = data["price"]
         else
           Logger.error("Unexpected response format: #{inspect(resp)}")
-          0 # or appropriate default value
+          0
         end
 
       resp ->
         Logger.error("Failed to fetch SBCH price: #{inspect(resp)}")
-        0 # or appropriate default value
+        0
     end
   end
 
