@@ -36,18 +36,16 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
-    market_data = nil
-
     last_updated = get_last_updated(market_data)
     current_price = get_sbch_price()
 
     id = "BCH
     btc_value = o
 
-    circulating_supply_data = market_data && market_data["circulating_supply"]
-    total_supply_data = market_data && market_data["total_supply"]
-    market_cap_data_usd = market_data && market_data["market_cap"] && market_data["market_cap"]["usd"]
-    total_volume_data_usd = market_data && market_data["total_volume"] && market_data["total_volume"]["usd"]
+    circulating_supply_data = nil
+    total_supply_data = nil
+    market_cap_data_usd = nil
+    total_volume_data_usd = nil
 
     [
       %Token{
