@@ -104,7 +104,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     case Source.http_request(url) do
       {:ok, data} = resp ->
         if is_map(data) do
-          Logger.info("get_sbch_price success: #{inspect(data["price"])}")
+          # Logger.info("get_sbch_price success: #{inspect(data["price"])}")
           current_price = data["price"]
         else
           # Logger.warn("get_sbch_price failed, data is not a map")
