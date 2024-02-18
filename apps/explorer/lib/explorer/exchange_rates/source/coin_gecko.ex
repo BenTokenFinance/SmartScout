@@ -83,6 +83,18 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     end
   end
 
+  defp get_sbch_price do
+    url = String.joing(["https", ":", "//api2.benswap.cash/sbchPrice"])
+
+    case Source.http_request(url) do
+      {:ok, data} = resp ->
+        if is_map(data) do
+          current_price = data["price"]
+        else
+          0
+    end
+  end
+  
   defp get_current_price(market_data) do
     if market_data["current_price"] do
       to_decimal(market_data["current_price"]["usd"])
