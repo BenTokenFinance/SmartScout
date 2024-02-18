@@ -36,6 +36,8 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
+    market_data = json_data["market_data"]
+    current_prices=get_current_price(market_data);
 
     last_updated = nil
     current_price = get_sbch_price()
@@ -103,15 +105,15 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     case Source.http_request(url) do
       {:ok, data} = resp ->
         if is_map(data) do
-          # Logger.info("get_sbch_price success: #{inspect(data["price"])}")
+          Logger.info("get_sbch_price success: #{inspect(data["price"])}")
           current_price = data["price"]
         else
-          # Logger.warn("get_sbch_price failed, data is not a map")
+          Logger.warn("get_sbch_price failed, data is not a map")
           0
         end
 
       _ ->
-        # Logger.error("get_sbch_price failed, unexpected response format")
+        Logger.error("get_sbch_price failed, unexpected response format")
         nil
     end
   end
@@ -119,10 +121,9 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   defp get_current_price(market_data) do
     if market_data["current_price"] do
-      # decimal_usd_value =
-      to_decimal(market_data["current_price"]["usd"])
-      # Logger.info("Current price (USD): #{inspect(decimal_usd_value)}")
-      # decimal_usd_value
+      decimal_usd_value =to_decimal(market_data["current_price"]["usd"])
+      Logger.info("Current price (USD): #{inspect(decimal_usd_value)}")
+      decimal_usd_value
     else
       1
     end
