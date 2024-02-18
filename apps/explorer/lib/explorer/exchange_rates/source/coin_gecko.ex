@@ -41,7 +41,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     current_price = get_sbch_price()
 
     id = "BCH"
-    btc_value = o
+    btc_value = 0
 
     circulating_supply_data = nil
     total_supply_data = nil
