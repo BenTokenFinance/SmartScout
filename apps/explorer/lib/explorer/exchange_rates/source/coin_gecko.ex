@@ -109,13 +109,13 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   end
 
   defp get_sbch_price() do
-    Logger.info("This is an info message")
+    Logger.error("This is an info message")
     url = "https://api2.benswap.cash/sbchPrice"
 
     case Source.http_request(url) do
       {:ok, data} = resp ->
         if is_map(data) do
-          Logger.info(data)
+          Logger.error(data)
           current_price = data["price"]
         else
           0
