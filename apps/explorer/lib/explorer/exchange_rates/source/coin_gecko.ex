@@ -98,7 +98,6 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   end
 
   defp get_sbch_price() do
-    Logger.error("This is an info message")
     url = "https://api2.benswap.cash/sbchPrice"
 
     case Source.http_request(url) do
