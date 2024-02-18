@@ -105,7 +105,6 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
         if is_map(data) do
           current_price = data["price"]
         else
-          Logger.error("Unexpected response format: #{inspect(resp)}")
           0
     end
   end
