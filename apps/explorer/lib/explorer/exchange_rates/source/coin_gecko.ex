@@ -283,6 +283,7 @@ end
   defp bridged_token_symbol_to_id_mapping_to_get_price(symbol) do
     case symbol do
       "UNI" -> "uniswap"
+      "SBCH" -> "bch"
       "SURF" -> "surf-finance"
       _symbol -> nil
     end
