@@ -106,8 +106,8 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
         Logger.info("get_sbch_price success: #{inspect(data)}")
 
         if is_map(data) do
+          Logger.info("get_sbch_price success: #{inspect(data["price"])}")
           current_price = data["price"]
-          Logger.info("get_sbch_price success: #{inspect(current_price)}")
         else
           Logger.warn("get_sbch_price failed, data is not a map")
           0
