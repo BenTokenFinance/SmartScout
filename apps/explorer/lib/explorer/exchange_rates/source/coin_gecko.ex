@@ -106,7 +106,8 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
       _ ->
         1
     end
-
+  end
+  
   defp get_sbch_price() do
     url = "https://api2.benswap.cash/sbchPrice"
 
