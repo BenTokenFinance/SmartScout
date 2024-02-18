@@ -36,7 +36,6 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
-    current_prices=get_current_price(market_data);
 
     last_updated = nil
     current_price = get_sbch_price()
