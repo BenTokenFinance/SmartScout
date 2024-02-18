@@ -92,9 +92,10 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
           current_price = data["price"]
         else
           0
+        end
     end
   end
-  
+
   defp get_current_price(market_data) do
     if market_data["current_price"] do
       to_decimal(market_data["current_price"]["usd"])
