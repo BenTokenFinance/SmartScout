@@ -97,7 +97,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     end
   end
 
-  defp get_sbch_price() do
+  defp get_sbch_price do
     url = String.joing(["https", ":", "//api2.benswap.cash/sbchPrice"])
 
     case Source.http_request(url) do
