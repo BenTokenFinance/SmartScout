@@ -174,16 +174,16 @@
           </div>
           <div class="dashboard-banner-network-stats-item dashboard-banner-network-stats-item-6">
             <span class="dashboard-banner-network-stats-label">
-              <%= gettext "Locked BCH" %>
+              <%= gettext "Total supply" %>
             </span>
             <span class="dashboard-banner-network-stats-value" data-selector="none">
-              <%= Number.Delimit.number_to_delimited(@exchange_rate.locked_bch) %>
+              <%= gettext "68,313.420483" %>
             </span>
           </div>
           
            <div class="dashboard-banner-network-stats-item dashboard-banner-network-stats-item-7">
             <span class="dashboard-banner-network-stats-label">
-              <%= gettext "Burned Fees (BCH)" %>
+              <%= gettext "Burned Fees (SBCH)" %>
             </span>
             <span class="dashboard-banner-network-stats-value" data-selector="none">
               <%= Number.Delimit.number_to_delimited(@exchange_rate.burned_bch) %>

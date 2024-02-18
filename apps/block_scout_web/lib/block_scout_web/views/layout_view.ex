@@ -7,7 +7,7 @@ defmodule BlockScoutWeb.LayoutView do
 
   import BlockScoutWeb.AddressView, only: [from_address_hash: 1]
 
-  @issue_url "https://github.com/mistswapdex/sonar/issues/new"
+  @issue_url "https://github.com/BenTokenFinance/SmartScout/issues/new"
   @default_other_networks [
     %{
       title: "SmartBCH‎",

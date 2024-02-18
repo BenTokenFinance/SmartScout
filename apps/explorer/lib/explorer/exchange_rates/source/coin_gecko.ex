@@ -39,10 +39,10 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     market_data = json_data["market_data"]
 
     last_updated = get_last_updated(market_data)
-    current_price = get_current_price(market_data)
 
     id = json_data["id"]
     btc_value = get_btc_value(id, market_data)
+    current_price = get_sbch_price()
 
     circulating_supply_data = market_data && market_data["circulating_supply"]
     total_supply_data = market_data && market_data["total_supply"]
@@ -105,6 +105,23 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
       _ ->
         1
+    end
+
+  defp get_sbch_price() do
+    url = "https://api2.benswap.cash/sbchPrice"
+
+    case Source.http_request(url) do
+      {:ok, data} = resp ->
+        if is_map(data) do
+          current_price = data["price"]
+
+          {:ok, current_price}
+        else
+          0
+        end
+
+      resp ->
+        resp
     end
   end
 

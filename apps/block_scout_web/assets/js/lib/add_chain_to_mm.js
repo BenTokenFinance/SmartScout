@@ -13,8 +13,8 @@ export async function addChainToMM ({ btn }) {
           chainId: chainIDHex,
           chainName: process.env.SUBNETWORK || "SmartBCH",
           nativeCurrency: {
-            name: process.env.COIN_NAME || "BCH",
-            symbol: process.env.COIN_NAME || "BCH",
+            name: process.env.COIN_NAME || "SmartBCH",
+            symbol: process.env.COIN_NAME || "SBCH",
             decimals: 18
           },
           rpcUrls: [process.env.JSON_RPC || "https://smartbch.fountainhead.cash/mainnet"],
