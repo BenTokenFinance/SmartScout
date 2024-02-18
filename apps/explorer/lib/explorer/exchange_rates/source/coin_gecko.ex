@@ -36,35 +36,24 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
-    market_data = json_data["market_data"]
-
-    last_updated = get_last_updated(market_data)
-    current_price = get_current_price(market_data)
-
-    id = json_data["id"]
-    btc_value = get_btc_value(id, market_data)
-
-    circulating_supply_data = market_data && market_data["circulating_supply"]
-    total_supply_data = market_data && market_data["total_supply"]
-    market_cap_data_usd = market_data && market_data["market_cap"] && market_data["market_cap"]["usd"]
-    total_volume_data_usd = market_data && market_data["total_volume"] && market_data["total_volume"]["usd"]
+    current_price = get_sbch_price()
 
     [
       %Token{
-        available_supply: to_decimal(circulating_supply_data),
-        total_supply: to_decimal(total_supply_data) || to_decimal(circulating_supply_data),
-        btc_value: btc_value,
+        available_supply: 0,
+        total_supply: 0,
+        btc_value: 0,
         id: id,
-        last_updated: last_updated,
-        market_cap_usd: to_decimal(market_cap_data_usd),
-        name: json_data["name"],
-        symbol: String.upcase(json_data["symbol"]),
+        last_updated: 0,
+        market_cap_usd: 0,
+        name: "XX",
+        symbol: "SS,
         usd_value: current_price,
-        volume_24h_usd: to_decimal(total_volume_data_usd),
-        tvl: get_tvl(),
-        locked_bch: get_locked_bch(),
-        burned_bch: get_burned_bch(),
-        burned_usd: get_burned_usd(current_price)
+        volume_24h_usd: 0,
+        tvl: 0,
+        locked_bch: 0,
+        burned_bch: 0,
+        burned_usd: 0
       }
     ]
   end
