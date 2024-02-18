@@ -5,12 +5,15 @@ services:
     image: postgres:13.6
     restart: always
     container_name: 'postgres'
+    shm_size: 2048mb
     environment:
         POSTGRES_PASSWORD: ''
         POSTGRES_USER: 'postgres'
         POSTGRES_HOST_AUTH_METHOD: 'trust'
     ports:
-      - 7432:5432
+      - 127.0.0.1:7432:5432
+    volumes:
+      - "./data/db:/var/lib/postgresql/data"
 
   blockscout:
     depends_on:
@@ -20,7 +23,11 @@ services:
       context: ..
       dockerfile: ./docker/Dockerfile
       args:
-        COIN: ""
+        COIN: "SBCH"
+        CHAIN_ID: 10000
+        JSON_RPC: https://smartbch.greyh.at
+        SUBNETWORK: smartBCH
+        COIN_NAME: SBCH
     restart: always
     container_name: 'blockscout'
     links:
@@ -30,6 +37,15 @@ services:
       - 'host.docker.internal:host-gateway'
     env_file:
       -  ./envs/common-blockscout.env
+    environment:
+      DATABASE_URL: postgresql://postgres:@db:5432/blockscout?ssl=false
+      COINGECKO_COIN_ID: bitcoin-cash
+      ENABLE_TXS_STATS: true
+      DISABLE_EXCHANGE_RATES: false
     ports:
-      - 4000:4000
-
+      - 80:4000
+    healthcheck:
+      test: ["CMD", "wget", "--tries=1", "http://localhost:4000", "||", "kill", "1"]
+      interval: 2m30s
+      timeout: 10s
+      retries: 100000 
