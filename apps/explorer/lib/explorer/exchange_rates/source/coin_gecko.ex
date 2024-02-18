@@ -63,7 +63,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
         market_cap_usd: to_decimal(market_cap_data_usd),
         name: name,
         symbol: symbol,
-        usd_value: 0,
+        usd_value: current_price,
         volume_24h_usd: to_decimal(total_volume_data_usd),
         tvl: get_tvl(),
         locked_bch: get_locked_bch(),
