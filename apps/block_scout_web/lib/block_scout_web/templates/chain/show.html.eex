@@ -166,7 +166,7 @@
           </div>
           <div class="dashboard-banner-network-stats-item dashboard-banner-network-stats-item-5">
             <span class="dashboard-banner-network-stats-label">
-              <%= gettext "Total Value Locked_test" %>
+              <%= gettext "Total Value Locked" %>
             </span>
             <span class="dashboard-banner-network-stats-value" data-selector="none">
              <%= "$#{Number.Delimit.number_to_delimited(@exchange_rate.tvl)}" %>
