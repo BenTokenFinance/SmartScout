@@ -122,9 +122,10 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   defp get_current_price(market_data) do
     if market_data["current_price"] do
-      decimal_usd_value = to_decimal(market_data["current_price"]["usd"])
-      Logger.info("Current price (USD): #{inspect(decimal_usd_value)}")
-      decimal_usd_value
+      # decimal_usd_value =
+      to_decimal(market_data["current_price"]["usd"])
+      # Logger.info("Current price (USD): #{inspect(decimal_usd_value)}")
+      # decimal_usd_value
     else
       1
     end
