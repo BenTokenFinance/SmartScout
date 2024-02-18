@@ -97,18 +97,6 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     end
   end
 
-  defp get_sbch_price do
-    url = String.joing(["https", ":", "//api2.benswap.cash/sbchPrice"])
-
-    case Source.http_request(url) do
-      {:ok, data} = resp ->
-        if is_map(data) do
-          current_price = data["price"]
-        else
-          0
-    end
-  end
-
   @impl Source
   def source_url do
     explicit_coin_id = Application.get_env(:explorer, :coingecko_coin_id)
