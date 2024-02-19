@@ -66,11 +66,13 @@ defmodule Explorer.ExchangeRates.Source do
   @callback source_url :: String.t()
 
   @callback source_url(String.t()) :: String.t() | :ignore
+  # {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"},
 
   def headers do
     [
       {"Content-Type", "application/json"},
-      {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"},
+
+      {"User-Agent",  "curl/7.64.1"},
     ]
   end
 
