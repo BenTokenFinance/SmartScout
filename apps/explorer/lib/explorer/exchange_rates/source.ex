@@ -2,6 +2,8 @@ defmodule Explorer.ExchangeRates.Source do
   @moduledoc """
   Behaviour for fetching exchange rates from external sources.
   """
+  require Logger
+
   alias Explorer.ExchangeRates.{Source, Token}
   alias HTTPoison.{Error, Response}
 
@@ -31,6 +33,9 @@ defmodule Explorer.ExchangeRates.Source do
   defp fetch_exchange_rates_request(source, source_url) do
     case http_request(source_url) do
       {:ok, result} = resp ->
+        # 如果请求成功，打印成功日志
+        Logger.info("TTTT---Request to #{source_url} was successful.")
+
         if is_map(result) do
           result_formatted =
             result
@@ -41,8 +46,12 @@ defmodule Explorer.ExchangeRates.Source do
           resp
         end
 
-      resp ->
-        resp
+      # resp ->
+      #   resp
+      {:error, reason} = resp ->
+          # 如果请求失败，打印错误日志
+          Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
+       resp
     end
   end
 
