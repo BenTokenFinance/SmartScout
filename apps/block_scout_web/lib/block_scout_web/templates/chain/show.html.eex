@@ -49,7 +49,7 @@
                     <%= System.get_env("COIN_NAME") || System.get_env("COIN") %> <%= gettext "Price" %>
                     </span>
                     <div class="dashboard-banner-chart-legend-value-container">
-                      <span class="dashboard-banner-chart-legend-value inline" data-selector="exchange-rate" data-wei-value="<%= Explorer.Chain.Wei.from(Decimal.new(1), :ether).value %>" data-usd-exchange-rate="<%= @exchange_rate.usd_value %>">
+                      <span class="dashboard-banner-chart-legend-value inline" data-selector="exchange-rate" data-wei-value="<%= Explorer.Chain.Wei.from(Decimal.new(1), :ether).value %>" data-usd-exchange-rate="200">
                       </span>
                       <%= if @gas_price do %>
                         <span class="dashboard-banner-chart-legend-value inline ml-2">
