@@ -37,21 +37,17 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
     market_data = json_data["market_data"]
-    current_prices=get_current_price(market_data);
 
-    last_updated = nil
-    current_price = get_sbch_price()
+    last_updated = get_last_updated(market_data)
+    current_price = get_current_price(market_data)
 
-    id = "BCH"
-    btc_value = 0
+    id = json_data["id"]
+    btc_value = get_btc_value(id, market_data)
 
-    circulating_supply_data = nil
-    total_supply_data = nil
-    market_cap_data_usd = nil
-    total_volume_data_usd = nil
-
-    name = "SBCH"
-    symbol = "SBCH"
+    circulating_supply_data = market_data && market_data["circulating_supply"]
+    total_supply_data = market_data && market_data["total_supply"]
+    market_cap_data_usd = market_data && market_data["market_cap"] && market_data["market_cap"]["usd"]
+    total_volume_data_usd = market_data && market_data["total_volume"] && market_data["total_volume"]["usd"]
 
     [
       %Token{
@@ -61,8 +57,8 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
         id: id,
         last_updated: last_updated,
         market_cap_usd: to_decimal(market_cap_data_usd),
-        name: name,
-        symbol: symbol,
+        name: json_data["name"],
+        symbol: String.upcase(json_data["symbol"]),
         usd_value: current_price,
         volume_24h_usd: to_decimal(total_volume_data_usd),
         tvl: get_tvl(),
@@ -87,43 +83,9 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     end
   end
 
-  # defp get_sbch_price do
-  #   url = String.join(["https", ":", "//api2.benswap.cash/sbchPrice"])
-  #   price
-  #   case Source.http_request(url) do
-  #     {:ok, data} = resp ->
-  #       if is_map(data) do
-  #         current_price = data["price"]
-  #       else
-  #         0
-  #       end
-  #   end
-  # end
-  defp get_sbch_price do
-    url = String.join(["https", ":", "//api2.benswap.cash/sbchPrice"])
-
-    case Source.http_request(url) do
-      {:ok, data} = resp ->
-        if is_map(data) do
-          Logger.info("get_sbch_price success: #{inspect(data["price"])}")
-          current_price = data["price"]
-        else
-          Logger.warn("get_sbch_price failed, data is not a map")
-          0
-        end
-
-      _ ->
-        Logger.error("get_sbch_price failed, unexpected response format")
-        nil
-    end
-  end
-
-
   defp get_current_price(market_data) do
     if market_data["current_price"] do
-      decimal_usd_value =to_decimal(market_data["current_price"]["usd"])
-      Logger.info("Current price (USD): #{inspect(decimal_usd_value)}")
-      decimal_usd_value
+      to_decimal(market_data["current_price"]["usd"])
     else
       1
     end
