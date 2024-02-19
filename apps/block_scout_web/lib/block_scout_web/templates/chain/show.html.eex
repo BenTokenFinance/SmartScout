@@ -26,6 +26,12 @@
                         acc + length(elem(source, 1)) end) %>
          document.documentElement.style.setProperty("--numChartData", numChartData);
         </script>
+        <script type="text/javascript">
+            console.log("-----------log-------------");
+            var exchangeRate = <%= raw Poison.encode!(@exchange_rate) %>;
+            console.log("Exchange Rate:", exchangeRate);
+        </script>
+
         <div class="dashboard-banner-chart-legend">
           <%= if Map.has_key?(@chart_config, :market) do %>
 
