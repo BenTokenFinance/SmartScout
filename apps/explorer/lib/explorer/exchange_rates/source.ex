@@ -67,14 +67,11 @@ defmodule Explorer.ExchangeRates.Source do
 
   @callback source_url(String.t()) :: String.t() | :ignore
   # {"User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36"},
-  # curl -I -H "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36" https://www.example.com
-  # curl -X GET 'https://api.coingecko.com/api/v3/coins/bitcoin' -H 'accept: application/json'
 
   def headers do
     [
       {"Content-Type", "application/json"},
-
-      {"User-Agent",  "curl/7.81.0"},
+      {"User-Agent",  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"},
     ]
   end
 
