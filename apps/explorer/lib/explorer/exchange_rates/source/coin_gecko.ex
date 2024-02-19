@@ -36,13 +36,20 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
-    Logger.warn(fn -> "market_data_start '#{reason}'." end)
+    Logger.warn("format_data received json_data: #{inspect(json_data)}")
+    Logger.warn(fn -> "format_data received json_data '#{json_data}'." end)
+
 
     market_data = json_data["market_data"]
+    Logger.warn("Extracted market_data: #{inspect(market_data)}")
+
     current_prices=get_current_price(market_data);
-    Logger.warn(fn -> "market_data_start_erro '#{reason}'." end)
+    Logger.warn("Current price extracted: #{inspect(current_prices)}")
+
+    Logger.warn(fn -> "market_data_start_erro '#{current_prices}'." end)
     last_updated = nil
     current_price = get_sbch_price()
+    Logger.warn("SBCH price from external API: #{inspect(current_price)}")
 
     id = "BCH"
     btc_value = 0
@@ -54,6 +61,15 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
     name = "SBCH"
     symbol = "SBCH"
+
+    Logger.warn("""
+    Preparing Token struct with:
+    - USD Value: #{inspect(current_price)}
+    - Total Supply: #{inspect(total_supply_data)}
+    - Available Supply: #{inspect(circulating_supply_data)}
+    - Market Cap USD: #{inspect(market_cap_data_usd)}
+    - Volume 24h USD: #{inspect(total_volume_data_usd)}
+    """)
 
     [
       %Token{
