@@ -30,30 +30,58 @@ defmodule Explorer.ExchangeRates.Source do
 
   defp fetch_exchange_rates_request(_source, source_url) when is_nil(source_url), do: {:error, "Source URL is nil"}
 
+  # defp fetch_exchange_rates_request(source, source_url) do
+
+  #   case http_request(source_url) do
+  #     {:ok, result} = resp ->
+  #       # 如果请求成功，打印成功日志
+  #       Logger.info("TTTT---Request to #{source_url} was successful.")
+
+  #       if is_map(result) do
+  #         result_formatted =
+  #           result
+  #           |> source.format_data()
+
+  #         {:ok, result_formatted}
+  #       else
+  #         resp
+  #       end
+
+  #     # resp ->
+  #     #   resp
+  #     {:error, reason} = resp ->
+  #         # 如果请求失败，打印错误日志
+  #         Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
+  #      resp
+  #   end
+  # end
   defp fetch_exchange_rates_request(source, source_url) do
-    case http_request(source_url) do
-      {:ok, result} = resp ->
-        # 如果请求成功，打印成功日志
+    # 假设source_url现在是本地文件路径
+    source_url = "test/fixtures/example_data.json"
+
+    case File.read(source_url) do
+      {:ok, file_content} ->
         Logger.info("TTTT---Request to #{source_url} was successful.")
-
-        if is_map(result) do
-          result_formatted =
-            result
-            |> source.format_data()
-
-          {:ok, result_formatted}
-        else
-          resp
+        # 假设文件内容是JSON字符串，需要解析JSON
+        case Jason.decode(file_content) do
+          {:ok, result} ->
+            if is_map(result) do
+              result_formatted = result |> source.format_data()
+              {:ok, result_formatted}
+            else
+              {:error, :unexpected_format}
+            end
+          {:error, _reason} = error ->
+            Logger.error("TTTT---Failed to parse JSON from #{source_url}")
+            error
         end
 
-      # resp ->
-      #   resp
-      {:error, reason} = resp ->
-          # 如果请求失败，打印错误日志
-          Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
-       resp
+      {:error, reason} ->
+        Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
+        {:error, reason}
     end
   end
+
 
   @doc """
   Callback for api's to format the data returned by their query.
