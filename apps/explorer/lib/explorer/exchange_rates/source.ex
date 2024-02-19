@@ -57,7 +57,7 @@ defmodule Explorer.ExchangeRates.Source do
   # end
   defp fetch_exchange_rates_request(source, source_url) do
     # 假设source_url现在是本地文件路径
-    source_url = "apps/explorer/test/support/fixture/test/test_1.json"
+    source_url = "#{File.cwd!()}/test/support/fixture/test/test_1.json"
 
     case File.read(source_url) do
       {:ok, file_content} ->
