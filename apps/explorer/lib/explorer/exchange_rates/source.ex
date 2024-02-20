@@ -86,7 +86,8 @@ defmodule Explorer.ExchangeRates.Source do
   defp fetch_exchange_rates_request(source, _source_url) do
     # 直接调用source.format_data()，传入空数据或预定义的数据结构
     Logger.info("GET---Request to SBCH was successful.")
-    result_formatted = source.format_data(%{"market_data" => %{}})
+    result = %{"market_data" => %{}}
+    result_formatted = result |> source.format_data()
     Logger.info("GET---Request DATA #{result_formatted} was successful.")
     {:ok, result_formatted}
   end
