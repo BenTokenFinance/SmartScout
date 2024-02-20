@@ -86,10 +86,23 @@ defmodule Explorer.ExchangeRates.Source do
   defp fetch_exchange_rates_request(source, _source_url) do
     # 直接调用source.format_data()，传入空数据或预定义的数据结构
     Logger.info("GET---Request to SBCH was successful.")
-    result = %{"market_data" => %{}}
-    result_formatted = result |> source.format_data()
-    Logger.info("GET---Request DATA #{result_formatted} was successful.")
-    {:ok, result_formatted}
+    json_string = "{\"market_data\": {}}"
+
+    case Jason.decode(json_string) do
+          {:ok, result} ->
+            if is_map(result) do
+              Logger.info("run come on: #{result}")
+              result_formatted = result |> source.format_data()
+              Logger.error("ERS data: #{result_formatted}")
+
+              {:ok, result_formatted}
+            else
+              {:error, :unexpected_format}
+            end
+          {:error, _reason} = error ->
+            Logger.error("TTTT---Failed to parse JSON from #{_source_url}")
+            error
+    end
   end
 
 
