@@ -68,6 +68,8 @@
                     </div>
                 </div>
             <% end %>
+
+            <%= if Enum.member?(market_chart_config, :price) do %>
             <!-- <%= if Enum.member?(@chart_config.market, :market_cap) do %> -->
             <div class="dashboard-banner-chart-legend-item">
                 <span class="dashboard-banner-chart-legend-label">
@@ -98,7 +100,7 @@
                   <% end %>
                 </div>
             </div>
-            <!-- <% end %> -->
+           <% end %>
           <% end %>
           <%= if Map.has_key?(@chart_config, :transactions) do %>
 
