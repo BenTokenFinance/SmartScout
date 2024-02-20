@@ -62,7 +62,7 @@
                 </span>
                 <div>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
-                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= total_market_cap %>">
+                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= String.to_float(@exchange_rate.usd_value || '0.0') * 68313.420483 %>">
                   </span>
                   <%= if token_bridge_supply?() do %>
                     <% token_bridge_market_cap = total_market_cap_from_token_bridge(@exchange_rate) %>
@@ -174,16 +174,18 @@
           </div>
           <div class="dashboard-banner-network-stats-item dashboard-banner-network-stats-item-6">
             <span class="dashboard-banner-network-stats-label">
-              <%= gettext "Locked BCH" %>
+              <%# <%= gettext "Locked BCH" %>
+              <%= gettext "Total supply" %>
             </span>
             <span class="dashboard-banner-network-stats-value" data-selector="none">
-              <%= Number.Delimit.number_to_delimited(@exchange_rate.locked_bch) %>
+              <%= gettext "68,313.420483" %>
+              <%# <%= Number.Delimit.number_to_delimited(@exchange_rate.locked_bch) %>
             </span>
           </div>
           
            <div class="dashboard-banner-network-stats-item dashboard-banner-network-stats-item-7">
             <span class="dashboard-banner-network-stats-label">
-              <%= gettext "Burned Fees (BCH)" %>
+              <%= gettext "Burned Fees (SBCH)" %>
             </span>
             <span class="dashboard-banner-network-stats-value" data-selector="none">
               <%= Number.Delimit.number_to_delimited(@exchange_rate.burned_bch) %>
