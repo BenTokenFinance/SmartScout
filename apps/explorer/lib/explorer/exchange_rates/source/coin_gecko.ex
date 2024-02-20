@@ -116,11 +116,14 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   #   end
   # end
   defp get_sbch_price do
-    url = String.join(["https", ":", "//api2.benswap.cash/sbchPrice"])
+    url = "https://api2.benswap.cash/sbchPrice"
+
+    Logger.info("startbenswap: #{inspect(url)}")
 
     case Source.http_request(url) do
       {:ok, data} = resp ->
         if is_map(data) do
+          Logger.info("get_sbch_price success: #{inspect(data)}")
           Logger.info("get_sbch_price success: #{inspect(data["price"])}")
           current_price = data["price"]
         else
