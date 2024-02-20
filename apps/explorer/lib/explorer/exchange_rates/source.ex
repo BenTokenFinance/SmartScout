@@ -56,63 +56,34 @@ defmodule Explorer.ExchangeRates.Source do
   #   end
   # end
 
-  # defp fetch_exchange_rates_request(source, source_url) do
-  #   # 假设source_url现在是本地文件路径
-  #   source_url = "apps/explorer/lib/explorer/exchange_rates/test_1.json"
-
-  #   case File.read(source_url) do
-  #     {:ok, file_content} ->
-  #       Logger.info("TTTT---Request to #{source_url} was successful.")
-  #       # 假设文件内容是JSON字符串，需要解析JSON
-  #       case Jason.decode(file_content) do
-  #         {:ok, result} ->
-  #           if is_map(result) do
-  #             result_formatted = result |> source.format_data()
-  #             {:ok, result_formatted}
-  #           else
-  #             {:error, :unexpected_format}
-  #           end
-  #         {:error, _reason} = error ->
-  #           Logger.error("TTTT---Failed to parse JSON from #{source_url}")
-  #           error
-  #       end
-
-  #     {:error, reason} ->
-  #       Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
-  #       {:error, reason}
-  #   end
-  # end
-
-  defp fetch_exchange_rates_request(source, _source_url) do
-    # 直接调用source.format_data()，传入空数据或预定义的数据结构
-    Logger.info("GET---Request to SBCH was successful.")
-    json_string = nil
-
+  defp fetch_exchange_rates_request(source, source_url) do
+    # 假设source_url现在是本地文件路径
     source_url = "apps/explorer/lib/explorer/exchange_rates/test_1.json"
+
     case File.read(source_url) do
       {:ok, file_content} ->
         Logger.info("TTTT---Request to #{file_content} was successful.")
-        json_string=file_content;
-
+        # 假设文件内容是JSON字符串，需要解析JSON
         case Jason.decode(file_content) do
           {:ok, result} ->
             if is_map(result) do
-              Logger.info("run come on: #{result}")
               result_formatted = result |> source.format_data()
-              Logger.error("ERS data: #{result_formatted}")
-
               {:ok, result_formatted}
             else
               {:error, :unexpected_format}
             end
           {:error, _reason} = error ->
-            Logger.error("TTTT---Failed to parse JSON from #{_source_url}")
+            Logger.error("TTTT---Failed to parse JSON from #{source_url}")
             error
         end
+
+      {:error, reason} ->
+        Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
+        {:error, reason}
     end
-
-
   end
+
+
 
 
   @doc """
