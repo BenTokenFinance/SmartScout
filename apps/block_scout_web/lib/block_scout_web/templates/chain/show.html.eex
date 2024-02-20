@@ -73,7 +73,7 @@
 
             
             <% end %>
-            <!-- <%= if Enum.member?(@chart_config.market, :market_cap) do %> -->
+            <%# <%= if Enum.member?(@chart_config.market, :market_cap) do %> 
             <div class="dashboard-banner-chart-legend-item">
                     <span class="dashboard-banner-chart-legend-label">
                     <%= gettext "Market Cap" %>
@@ -81,7 +81,7 @@
                     <div>
                       <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
                       <!--
-                      <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= total_market_cap %>">
+                      <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= total_market_cap %>"
                       </span>
                       -->
                       <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= String.to_float(@exchange_rate.usd_value || '0.0') * 68313.420483 %>">
