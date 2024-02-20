@@ -100,8 +100,11 @@
                   <% end %>
                 </div>
             </div>
+            <% end %>
+
            <% end %>
           <% end %>
+
           <%= if Map.has_key?(@chart_config, :transactions) do %>
 
             <% transaction_chart_config = @chart_config.transactions%>
