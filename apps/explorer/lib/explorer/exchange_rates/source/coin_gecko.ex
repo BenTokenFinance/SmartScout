@@ -42,7 +42,6 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     # Logger.warn("Extracted market_data: #{inspect(market_data)}")
     # current_prices=get_current_price(market_data);
     # Logger.warn("Current price extracted: #{inspect(current_prices)}")
-
     # Logger.warn(fn -> "market_data_start_erro '#{current_prices}'." end)
     last_updated = nil
     Logger.info("1.1_get_sbch_price");
