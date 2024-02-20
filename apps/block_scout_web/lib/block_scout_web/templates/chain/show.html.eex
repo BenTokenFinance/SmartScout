@@ -75,8 +75,13 @@
                     </span>
                     <div>
                       <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
-                      <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= @exchange_rate.usd_value * 68313.420483 %>">
-                      </span>
+                      <%= if is_number(@exchange_rate.usd_value) do %>
+                        <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= @exchange_rate.usd_value * 68313.420483 %>">
+                        </span>
+                      <% else %>
+                        <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="0">
+                        </span>
+                      <% end %>
                       <%= if token_bridge_supply?() do %>
                         <% token_bridge_market_cap = total_market_cap_from_token_bridge(@exchange_rate) %>
                         <% omni_bridge_market_cap = total_market_cap_from_omni_bridge() %>
@@ -95,6 +100,7 @@
                     </div>
                 </div>
             <% end %>
+
 
           <% end %>
           <%= if Map.has_key?(@chart_config, :transactions) do %>
