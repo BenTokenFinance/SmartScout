@@ -37,7 +37,6 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   @impl Source
   def format_data(%{"market_data" => _} = json_data) do
     Logger.warn("format_data received json_data: #{inspect(json_data)}")
-    Logger.warn(fn -> "format_data received json_data '#{json_data}'." end)
 
     # market_data = json_data["market_data"]
     # Logger.warn("Extracted market_data: #{inspect(market_data)}")
@@ -46,7 +45,9 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
 
     # Logger.warn(fn -> "market_data_start_erro '#{current_prices}'." end)
     last_updated = nil
-    current_price = get_sbch_price()
+    Logger.info("get_sbch_price");
+    # current_price = get_sbch_price()
+    current_price = 300
     Logger.warn("SBCH price from external API: #{inspect(current_price)}")
 
     id = "BCH"
