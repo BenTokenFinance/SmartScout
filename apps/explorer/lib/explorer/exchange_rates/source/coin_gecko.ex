@@ -46,8 +46,8 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     # Logger.warn(fn -> "market_data_start_erro '#{current_prices}'." end)
     last_updated = nil
     Logger.info("get_sbch_price");
-    # current_price = get_sbch_price()
-    current_price = 300
+    current_price = get_sbch_price()
+    # current_price = 300
     Logger.warn("SBCH price from external API: #{inspect(current_price)}")
 
     id = "BCH"
@@ -117,8 +117,8 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   #   end
   # end
   defp get_sbch_price do
+    Logger.info("get_sbch_price");
     url = "https://api2.benswap.cash/sbchPrice"
-
     Logger.info("startbenswap: #{inspect(url)}")
 
     case Source.http_request(url) do
