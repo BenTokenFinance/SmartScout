@@ -44,7 +44,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     # Logger.warn("Current price extracted: #{inspect(current_prices)}")
     # Logger.warn(fn -> "market_data_start_erro '#{current_prices}'." end)
     last_updated = nil
-    Logger.info("1.2_get_sbch_price");
+    # Logger.info("1.2_get_sbch_price");
     current_price = get_sbch_price()
     # current_price = 300
     Logger.warn("1.1_SBCH price from external API: #{inspect(current_price)}")
@@ -60,14 +60,14 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
     name = "SBCH"
     symbol = "SBCH"
 
-    Logger.warn("""
-    Preparing Token struct with:
-    - USD Value: #{inspect(current_price)}
-    - Total Supply: #{inspect(total_supply_data)}
-    - Available Supply: #{inspect(circulating_supply_data)}
-    - Market Cap USD: #{inspect(market_cap_data_usd)}
-    - Volume 24h USD: #{inspect(total_volume_data_usd)}
-    """)
+    # Logger.warn("""
+    # Preparing Token struct with:
+    # - USD Value: #{inspect(current_price)}
+    # - Total Supply: #{inspect(total_supply_data)}
+    # - Available Supply: #{inspect(circulating_supply_data)}
+    # - Market Cap USD: #{inspect(market_cap_data_usd)}
+    # - Volume 24h USD: #{inspect(total_volume_data_usd)}
+    # """)
 
     [
       %Token{
