@@ -56,37 +56,66 @@ defmodule Explorer.ExchangeRates.Source do
   #   end
   # end
 
-  defp fetch_exchange_rates_request(source, source_url) do
-    # 假设source_url现在是本地文件路径
-    Logger.info("TTTT---source_url #{source_url} was successful.")
-    source_url = "apps/explorer/lib/explorer/exchange_rates/test_1.json"
-    Logger.info("TTTT---source #{source} was successful.")
 
-    case File.read(source_url) do
-      {:ok, file_content} ->
-        Logger.info("TTTT---Request to #{file_content} was successful.")
-        # 假设文件内容是JSON字符串，需要解析JSON
-        case Jason.decode(file_content) do
-          {:ok, result} ->
-            if is_map(result) do
-              result_formatted = result |> source.format_data()
-              {:ok, result_formatted}
-            else
-              {:error, :unexpected_format}
-            end
-          {:error, _reason} = error ->
-            Logger.error("TTTT---Failed to parse JSON from #{source_url}")
-            error
+    # 假设这是你要在条件不满足时调用的函数
+  def get_sbch_function(source, source_url) do
+      # 假设source_url现在是本地文件路径
+      source_url = "apps/explorer/lib/explorer/exchange_rates/test_1.json"
+      Logger.info("TTTT---source #{source} was successful.")
+  
+      case File.read(source_url) do
+        {:ok, file_content} ->
+          Logger.info("TTTT---Request to #{file_content} was successful.")
+          # 假设文件内容是JSON字符串，需要解析JSON
+          case Jason.decode(file_content) do
+            {:ok, result} ->
+              if is_map(result) do
+                result_formatted = result |> source.sbch_format_data()
+                {:ok, result_formatted}
+              else
+                {:error, :unexpected_format}
+              end
+            {:error, _reason} = error ->
+              Logger.error("TTTT---Failed to parse JSON from #{source_url}")
+              error
+          end
+  
+        {:error, reason} ->
+          Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
+          {:error, reason}
+      end
+  end
+
+  defp fetch_exchange_rates_request_not_sbch(source, source_url) do
+    case http_request(source_url) do
+      {:ok, result} = resp ->
+        if is_map(result) do
+          result_formatted =
+            result
+            |> source.format_data()
+
+          {:ok, result_formatted}
+        else
+          resp
         end
 
-      {:error, reason} ->
-        Logger.error("TTTT---Request to #{source_url} failed with reason: #{inspect(reason)}")
-        {:error, reason}
+      resp ->
+        resp
+    end
+  end
+
+  defp fetch_exchange_rates_request(source, source_url) do
+    if field == "https://api.coingecko.com/api/v3/coins/bitcoin-cash" do
+      Logger.info("not_sbch #{source_url} was successful.")
+      fetch_exchange_rates_request_not_sbch(source, source_url)
+    else
+      Logger.info("get_sbch #{source_url} was successful.")
+      get_sbch_function(source, source_url)
     end
   end
 
 
-
+    
 
   @doc """
   Callback for api's to format the data returned by their query.
