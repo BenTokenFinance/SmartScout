@@ -60,7 +60,7 @@ defmodule Explorer.ExchangeRates.Source do
     # 假设source_url现在是本地文件路径
     source_url = "apps/explorer/lib/explorer/exchange_rates/test_1.json"
     Logger.info("TTTT---source #{source} was successful.")
-    Logger.info("TTTT---source_url #{source} was successful.")
+    Logger.info("TTTT---source_url #{source_url} was successful.")
 
     case File.read(source_url) do
       {:ok, file_content} ->
