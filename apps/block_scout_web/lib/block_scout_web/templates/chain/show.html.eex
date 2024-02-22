@@ -62,9 +62,8 @@
                 </span>
                 <div>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
-                  <!-- <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= String.to_float(@exchange_rate.usd_value || '0.0') * 68313.420483 %>">
+                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= String.to_float(@exchange_rate.usd_value || '0.0') * 68313.420483 %>">
                   </span>
-                  -->
                   <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= total_market_cap %>">
                   </span>
                   <%= if token_bridge_supply?() do %>
