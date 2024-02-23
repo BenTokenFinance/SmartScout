@@ -50,8 +50,7 @@ defmodule BlockScoutWeb.ChainController do
         nil -> 0
         value -> 
           # 假设value是字符串需要转换为浮点数，这里添加转换逻辑
-          float_value = String.to_float(value)
-          float_value * 68313.420483
+          value * 68313.420483
       end
     rescue
       ArgumentError -> 
