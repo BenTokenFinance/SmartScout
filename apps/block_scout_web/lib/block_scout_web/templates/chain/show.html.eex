@@ -61,6 +61,11 @@
                 <%= gettext "Market Cap" %>
                 </span>
                 <div>
+                  <script type="text/javascript">
+                      console.log("-----------log-------------");
+                      var exchangeRate = <%= raw Poison.encode!(@exchange_rate) %>;
+                      console.log("Exchange Rate:", exchangeRate);
+                  </script>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
                   <% if is_binary(@exchange_rate.usd_value) do %>
                     <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= String.to_float(@exchange_rate.usd_value || '0.0') * 68313.420483 %>">
