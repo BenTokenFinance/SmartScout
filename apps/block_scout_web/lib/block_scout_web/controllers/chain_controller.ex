@@ -44,7 +44,14 @@ defmodule BlockScoutWeb.ChainController do
     }
 
     chart_config = Application.get_env(:block_scout_web, :chart_config, %{})
-
+    # 假设exchange_rate.usd_value是一个可用的值
+    calculated_market_cap = case exchange_rate.usd_value do
+      nil -> 0
+      value -> value * 68313.420483
+    rescue
+      ArgumentError -> -1 # 如果转换失败则默认为0
+    end
+  
     render(
       conn,
       "show.html",
@@ -61,6 +68,7 @@ defmodule BlockScoutWeb.ChainController do
       transaction_stats: transaction_stats,
       block_count: block_count,
       gas_price: Application.get_env(:block_scout_web, :gas_price)
+      calculated_market_cap: calculated_market_cap 
     )
   end
 
