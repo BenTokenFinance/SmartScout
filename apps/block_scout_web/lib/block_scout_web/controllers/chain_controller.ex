@@ -45,11 +45,18 @@ defmodule BlockScoutWeb.ChainController do
 
     chart_config = Application.get_env(:block_scout_web, :chart_config, %{})
     # 假设exchange_rate.usd_value是一个可用的值
-    calculated_market_val = case exchange_rate.usd_value do
-      nil -> 0
-      value -> value * 68313.420483
+    calculated_market_val = try do
+      case exchange_rate.usd_value do
+        nil -> 0
+        value -> 
+          # 假设value是字符串需要转换为浮点数，这里添加转换逻辑
+          float_value = String.to_float(value)
+          float_value * 68313.420483
+      end
     rescue
-      ArgumentError -> -1 # 如果转换失败则默认为0
+      ArgumentError -> 
+        # 如果转换失败（例如，value不是一个有效的浮点数字符串），则返回-1
+        -1
     end
   
     render(
