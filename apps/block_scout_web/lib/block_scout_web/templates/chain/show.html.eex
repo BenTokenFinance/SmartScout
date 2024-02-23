@@ -64,14 +64,12 @@
                   <script type="text/javascript">
                       console.log("-----------log-------------");
                       var exchangeRate = <%= raw Poison.encode!(@exchange_rate) %>;
-                      var exchangeRates_calculated_market_value = <%= raw Poison.encode!(@calculated_market_value) %>;
                       console.log("Exchange Rate:", exchangeRate);
-                      console.log("exchangeRates_calculated_market_value:", exchangeRates_calculated_market_value);
+                      /*var exchangeRates_calculated_market_value = <%= raw Poison.encode!(@calculated_market_value) %>;
+                      console.log("exchangeRates_calculated_market_value:", exchangeRates_calculated_market_value);*/
                   </script>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
-                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= @calculated_market_value %>">
-                  </span>
-                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= total_market_cap %>">
+                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= (@exchange_rate.usd_value || 0) * 68313.420483 %>">
                   </span>
                   <%= if token_bridge_supply?() do %>
                     <% token_bridge_market_cap = total_market_cap_from_token_bridge(@exchange_rate) %>
