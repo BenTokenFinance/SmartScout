@@ -107,8 +107,8 @@ defmodule Explorer.ExchangeRates.Source do
   defp fetch_exchange_rates_request(source, source_url) do
     if source_url == "https://api.coingecko.com/api/v3/coins/bitcoin-cash" do
       Logger.info("not_sbch #{source_url} was successful.")
-      # fetch_exchange_rates_request_not_sbch(source, source_url)
-      get_sbch_function(source, source_url)
+      fetch_exchange_rates_request_not_sbch(source, source_url)
+      # get_sbch_function(source, source_url)
     else
       Logger.info("get_sbch #{source_url} was successful.")
       get_sbch_function(source, source_url)
