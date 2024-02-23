@@ -165,7 +165,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
       {:ok, data} = resp ->
         if is_map(data) do
           Logger.info("get_sbch_price success: #{inspect(data)}")
-          Logger.info("get_sbch_price success: #{inspect(data["price"])}")
+          Logger.info("get_sbch_price success: #{inspect(String.to_float(data["price"]))}")
           current_price = String.to_float(data["price"])
         else
           Logger.warn("get_sbch_price failed, data is not a map")
