@@ -67,8 +67,31 @@
                       console.log("Exchange Rate:", exchangeRate);
                   </script>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
-                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= 0 %>">
+                  <!-- <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= (@exchange_rate.usd_value && String.to_float(@exchange_rate.usd_value) || 0) * 68313.420483 %>">
                   </span>
+                  -->
+
+                  <%= if @exchange_rate.usd_value != nil do %>
+                    <%= if is_integer(@exchange_rate.usd_value) or is_float(@exchange_rate.usd_value) do %>
+                      <!-- 如果是数字 -->
+                      <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= @exchange_rate.usd_value * 68313.420483 %>">
+                      </span> 
+                    <% elif is_binary(@exchange_rate.usd_value) do %>
+                      <!-- 如果是字符串 -->
+                      <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= String.to_float(@exchange_rate.usd_value)* 68313.420483 %>">
+                      </span>
+                    <% else %>
+                      <!-- 如果既不是数字也不是字符串 -->
+                      <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="5">
+                      </span>
+                      <% end %>
+                  <% else %>
+                    <!-- 如果 @exchange_rate.usd_value 不存在 -->
+                     <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="6">
+                    </span>
+                  <% end %>
+              
+                  
                   <%= if token_bridge_supply?() do %>
                     <% token_bridge_market_cap = total_market_cap_from_token_bridge(@exchange_rate) %>
                     <% omni_bridge_market_cap = total_market_cap_from_omni_bridge() %>
