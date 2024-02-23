@@ -67,7 +67,7 @@
                       console.log("Exchange Rate:", exchangeRate);
                   </script>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
-                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= exchange_rate.usd_value %>">
+                  <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= 0 %>">
                   </span>
                   <%= if token_bridge_supply?() do %>
                     <% token_bridge_market_cap = total_market_cap_from_token_bridge(@exchange_rate) %>
