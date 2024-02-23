@@ -64,9 +64,9 @@
                   <script type="text/javascript">
                       console.log("-----------log-------------");
                       var exchangeRate = <%= raw Poison.encode!(@exchange_rate) %>;
-                      var exchangeRate = <%= raw Poison.encode!(@calculated_market_value) %>;
+                      var exchangeRates_calculated_market_value = <%= raw Poison.encode!(@calculated_market_value) %>;
                       console.log("Exchange Rate:", exchangeRate);
-
+                      console.log("exchangeRates_calculated_market_value:", exchangeRates_calculated_market_value);
                   </script>
                   <% total_market_cap = market_cap(@market_cap_calculation, @exchange_rate) %>
                   <span style="display: contents;" class="dashboard-banner-chart-legend-value" data-selector="market-cap" data-usd-value="<%= @calculated_market_value %>">
