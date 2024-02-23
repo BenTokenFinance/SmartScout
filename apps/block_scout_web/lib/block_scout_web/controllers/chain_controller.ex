@@ -43,7 +43,7 @@ defmodule BlockScoutWeb.ChainController do
       transaction: transaction_history_chart_path(conn, :show)
     }
 
-    # chart_config = Application.get_env(:block_scout_web, :chart_config, %{})
+    chart_config = Application.get_env(:block_scout_web, :chart_config, %{})
     # # 假设exchange_rate.usd_value是一个可用的值
     # calculated_market_val = try do
     #   case exchange_rate.usd_value do
