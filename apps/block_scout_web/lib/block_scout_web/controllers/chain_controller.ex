@@ -1,4 +1,5 @@
 defmodule BlockScoutWeb.ChainController do
+  require Logger
   use BlockScoutWeb, :controller
 
   import BlockScoutWeb.Chain, only: [paging_options: 1]
