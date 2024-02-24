@@ -84,7 +84,7 @@ defmodule BlockScoutWeb.ChainController do
 
   defp calculate_market_value_func(usd_value) do
     multiplier = Decimal.new("68313.420483")
-    Logger.info("TTTT---multiplier #{multiplier} was successful.")
+    Logger.info("TTTT---multiplier #{Decimal.to_string(multiplier)} was successful.")
     market_value = Decimal.mult(usd_value, multiplier)
   
     # 使用 Decimal.to_string() 仅为了日志记录，而不改变 market_value 的类型
