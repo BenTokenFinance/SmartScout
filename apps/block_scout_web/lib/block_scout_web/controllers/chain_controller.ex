@@ -57,7 +57,8 @@ defmodule BlockScoutWeb.ChainController do
     #     # 如果转换失败（例如，value不是一个有效的浮点数字符串），则返回-1
     #     -1
     # end
-  
+    # 计算市值
+    calculated_market_value = calculate_market_value_func(exchange_rate.usd_value)
     render(
       conn,
       "show.html",
@@ -73,9 +74,24 @@ defmodule BlockScoutWeb.ChainController do
       transactions_path: recent_transactions_path(conn, :index),
       transaction_stats: transaction_stats,
       block_count: block_count,
-      gas_price: Application.get_env(:block_scout_web, :gas_price)
-      # calculated_market_value: calculated_market_val 
+      gas_price: Application.get_env(:block_scout_web, :gas_price),
+      calculated_market_value: calculated_market_value 
     )
+  end
+
+
+  defp calculate_market_value_func(usd_value) when is_nil(usd_value), do: 0
+
+  defp calculate_market_value_func(usd_value) do
+    multiplier = Decimal.new("68313.420483")
+    case Decimal.new(usd_value) do
+      {:ok, decimal_value} ->
+        Decimal.mult(decimal_value, multiplier) |> Decimal.to_string()
+      _ ->
+        "-1"
+    end
+  rescue
+    ArgumentError -> "-1"
   end
 
   def get_transaction_stats do
