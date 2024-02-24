@@ -7,7 +7,8 @@ defmodule BlockScoutWeb.LayoutView do
 
   import BlockScoutWeb.AddressView, only: [from_address_hash: 1]
 
-  @issue_url "https://github.com/BenTokenFinance/SmartScout/issues/new"
+  # @issue_url "https://github.com/BenTokenFinance/SmartScout/issues/new"
+  @issue_url "https://github.com/blockscout/blockscout/issues/new"
   @default_other_networks [
     %{
       title: "SmartBCH‎",
@@ -128,7 +129,7 @@ defmodule BlockScoutWeb.LayoutView do
     if release_link == nil do
       ""
     else
-      html_escape({:safe, "<a href=\"#{release_link}\" class=\"footer-link\" target=\"_blank\">#{version}</a>"})
+      html_escape({:safe, "<a href=\"#{release_link}\" class=\"footer-link\" target=\"_blank\">#{version} smartBCH</a>"})
     end
   end
 
