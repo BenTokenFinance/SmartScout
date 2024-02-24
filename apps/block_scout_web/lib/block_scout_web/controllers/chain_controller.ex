@@ -84,14 +84,15 @@ defmodule BlockScoutWeb.ChainController do
 
   defp calculate_market_value_func(usd_value) do
     multiplier = Decimal.new("68313.420483")
-    case Decimal.new(usd_value) do
-      {:ok, decimal_value} ->
-        Decimal.mult(decimal_value, multiplier) |> Decimal.to_string()
-      _ ->
-        "-1"
-    end
+    Logger.info("TTTT---multiplier #{multiplier} was successful.")
+    market_value = Decimal.mult(usd_value, multiplier)
+  
+    # 使用 Decimal.to_string() 仅为了日志记录，而不改变 market_value 的类型
+    Logger.info("Calculated Market Value: #{Decimal.to_string(market_value)}")
+    
+    market_value
   rescue
-    ArgumentError -> "-1"
+    ArgumentError -> "8"
   end
 
   def get_transaction_stats do
