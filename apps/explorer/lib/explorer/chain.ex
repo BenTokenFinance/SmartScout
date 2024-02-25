@@ -7229,7 +7229,7 @@ defmodule Explorer.Chain do
       nil -> nil
       # "smartbch" -> "https://raw.githubusercontent.com/mistswapdex/assets/master/blockchains/#{chain_name}/assets/#{address_hash}/logo.png"
       # "smartbch" -> "https://asset.benswap.cash/tokens/#{address_hash}.png"
-      "smartbch" -> "https://asset.benswap.cash/assets/#{address_hash}.png"
+      "smartbch" -> "https://asset.benswap.cash/assets/#{address_hash}/logo.png"
       
       _ -> "https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/#{chain_name}/assets/#{address_hash}/logo.png"
     end
