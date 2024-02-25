@@ -98,6 +98,14 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
   def format_data(%{"market_data" => _} = json_data) do
     market_data = json_data["market_data"]
     Logger.info("TTTT---market_data #{market_data} was successful.")
+    Logger.info("TTTT---token_name #{json_data["name"]} was successful.")
+
+    token_name=nil;
+    if json_data["name"] == "Wrapped BCH" do
+       token_name="Wrapped SBCH"
+    else
+       token_name=json_data["name"]
+    end
 
     last_updated = get_last_updated(market_data)
     current_price = get_current_price(market_data)
@@ -118,7 +126,7 @@ defmodule Explorer.ExchangeRates.Source.CoinGecko do
         id: id,
         last_updated: last_updated,
         market_cap_usd: to_decimal(market_cap_data_usd),
-        name: json_data["name"],
+        name: token_name,
         symbol: String.upcase(json_data["symbol"]),
         usd_value: current_price,
         volume_24h_usd: to_decimal(total_volume_data_usd),
