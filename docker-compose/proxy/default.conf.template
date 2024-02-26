@@ -19,6 +19,8 @@ server {
         proxy_set_header      Upgrade "$http_upgrade";
         proxy_set_header      Connection $connection_upgrade;
         proxy_cache_bypass    $http_upgrade;
+        proxy_hide_header     Access-Control-Allow-Methods;
+        add_header 'Access-Control-Allow-Origin' '*' always;
     }
     location / {
         proxy_pass            ${FRONT_PROXY_PASS};
