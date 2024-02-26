@@ -3,7 +3,7 @@ defmodule Explorer.Chain.InternalTransaction do
 
   use Explorer.Schema
 
-  alias Explorer.Chain.{Address, Block, Data, Gas, Hash, PendingBlockOperation, Transaction, Wei}
+  alias Explorer.Chain.{Address, Block, Data, Hash, PendingBlockOperation, Transaction, Wei}
   alias Explorer.Chain.InternalTransaction.{Action, CallType, Result, Type}
 
   @typedoc """
@@ -32,50 +32,23 @@ defmodule Explorer.Chain.InternalTransaction do
    * `block_index` - the index of this internal transaction inside the `block`
    * `pending_block` - `nil` if `block` has all its internal transactions fetched
   """
-  @type t :: %__MODULE__{
-          block_number: Explorer.Chain.Block.block_number() | nil,
-          type: Type.t(),
-          call_type: CallType.t() | nil,
-          created_contract_address: %Ecto.Association.NotLoaded{} | Address.t() | nil,
-          created_contract_address_hash: Hash.t() | nil,
-          created_contract_code: Data.t() | nil,
-          error: String.t(),
-          from_address: %Ecto.Association.NotLoaded{} | Address.t(),
-          from_address_hash: Hash.Address.t(),
-          gas: Gas.t() | nil,
-          gas_used: Gas.t() | nil,
-          index: non_neg_integer(),
-          init: Data.t() | nil,
-          input: Data.t() | nil,
-          output: Data.t() | nil,
-          to_address: %Ecto.Association.NotLoaded{} | Address.t() | nil,
-          to_address_hash: Hash.Address.t() | nil,
-          trace_address: [non_neg_integer()],
-          transaction: %Ecto.Association.NotLoaded{} | Transaction.t(),
-          transaction_hash: Hash.t(),
-          transaction_index: Transaction.transaction_index() | nil,
-          value: Wei.t(),
-          block_hash: Hash.Full.t(),
-          block_index: non_neg_integer()
-        }
-
   @primary_key false
-  schema "internal_transactions" do
+  typed_schema "internal_transactions" do
     field(:call_type, CallType)
     field(:created_contract_code, Data)
     field(:error, :string)
     field(:gas, :decimal)
     field(:gas_used, :decimal)
-    field(:index, :integer, primary_key: true)
+    field(:index, :integer, primary_key: true, null: false)
     field(:init, Data)
     field(:input, Data)
     field(:output, Data)
-    field(:trace_address, {:array, :integer})
-    field(:type, Type)
-    field(:value, Wei)
+    field(:trace_address, {:array, :integer}, null: false)
+    field(:type, Type, null: false)
+    field(:value, Wei, null: false)
     field(:block_number, :integer)
     field(:transaction_index, :integer)
-    field(:block_index, :integer)
+    field(:block_index, :integer, null: false)
 
     timestamps()
 
@@ -92,7 +65,8 @@ defmodule Explorer.Chain.InternalTransaction do
       Address,
       foreign_key: :from_address_hash,
       references: :hash,
-      type: Hash.Address
+      type: Hash.Address,
+      null: false
     )
 
     belongs_to(
@@ -107,21 +81,22 @@ defmodule Explorer.Chain.InternalTransaction do
       foreign_key: :transaction_hash,
       primary_key: true,
       references: :hash,
-      type: Hash.Full
+      type: Hash.Full,
+      null: false
     )
 
     belongs_to(:block, Block,
       foreign_key: :block_hash,
       references: :hash,
-      type: Hash.Full
+      type: Hash.Full,
+      null: false
     )
 
     belongs_to(:pending_block, PendingBlockOperation,
       foreign_key: :block_hash,
       define_field: false,
       references: :block_hash,
-      type: Hash.Full,
-      where: [fetch_internal_transactions: true]
+      type: Hash.Full
     )
   end
 
@@ -201,7 +176,7 @@ defmodule Explorer.Chain.InternalTransaction do
         bytes: <<120, 164, 45, 55, 5, 251, 60, 38, 164, 181, 71, 55, 167, 132, 191, 6, 79, 8, 21, 251>>
       }
 
-  `:call` type traces are generated when a method in a contrat is call.
+  `:call` type traces are generated when a method in a contract is call.
 
       iex> changeset = Explorer.Chain.InternalTransaction.changeset(
       ...>   %Explorer.Chain.InternalTransaction{},
@@ -253,7 +228,7 @@ defmodule Explorer.Chain.InternalTransaction do
       true
 
   Failed `:call`s are not allowed to set `gas_used` or `output` because they are part of the successful `result` object
-  in the Parity JSONRPC response.  They still need `input`, however.
+  in the Nethermind JSONRPC response.  They still need `input`, however.
 
       iex> changeset = Explorer.Chain.InternalTransaction.changeset(
       ...>   %Explorer.Chain.InternalTransaction{},
@@ -281,8 +256,7 @@ defmodule Explorer.Chain.InternalTransaction do
       false
       iex> changeset.errors
       [
-        output: {"can't be present for failed call", []},
-        gas_used: {"can't be present for failed call", []}
+        output: {"can't be present for failed call", []}
       ]
 
   Likewise, successful `:call`s require `input`, `gas_used` and `output` to be set.
@@ -315,7 +289,7 @@ defmodule Explorer.Chain.InternalTransaction do
       ]
 
   For failed `:create`, `created_contract_code`, `created_contract_address_hash`, and `gas_used` are not allowed to be
-  set because they come from `result` object, which shouldn't be returned from Parity.
+  set because they come from `result` object, which shouldn't be returned from Nethermind.
 
       iex> changeset = Explorer.Chain.InternalTransaction.changeset(
       ...>   %Explorer.Chain.InternalTransaction{},
@@ -446,8 +420,6 @@ defmodule Explorer.Chain.InternalTransaction do
     |> validate_call_error_or_result()
     |> check_constraint(:call_type, message: ~S|can't be blank when type is 'call'|, name: :call_has_call_type)
     |> check_constraint(:input, message: ~S|can't be blank when type is 'call'|, name: :call_has_call_type)
-    |> foreign_key_constraint(:from_address_hash)
-    |> foreign_key_constraint(:to_address_hash)
     |> foreign_key_constraint(:transaction_hash)
     |> unique_constraint(:index)
   end
@@ -462,8 +434,6 @@ defmodule Explorer.Chain.InternalTransaction do
     |> validate_required(@create_required_fields)
     |> validate_create_error_or_result()
     |> check_constraint(:init, message: ~S|can't be blank when type is 'create'|, name: :create_has_init)
-    |> foreign_key_constraint(:created_contract_address_hash)
-    |> foreign_key_constraint(:from_address_hash)
     |> foreign_key_constraint(:transaction_hash)
     |> unique_constraint(:index)
   end
@@ -476,8 +446,17 @@ defmodule Explorer.Chain.InternalTransaction do
     changeset
     |> cast(attrs, @selfdestruct_allowed_fields)
     |> validate_required(@selfdestruct_required_fields)
-    |> foreign_key_constraint(:from_address_hash)
-    |> foreign_key_constraint(:to_address_hash)
+    |> unique_constraint(:index)
+  end
+
+  @stop_optional_fields ~w(from_address_hash gas gas_used error)a
+  @stop_required_fields ~w(block_number transaction_hash transaction_index index type value trace_address)a
+  @stop_allowed_fields @stop_optional_fields ++ @stop_required_fields
+
+  defp type_changeset(changeset, attrs, :stop) do
+    changeset
+    |> cast(attrs, @stop_allowed_fields)
+    |> validate_required(@stop_required_fields)
     |> unique_constraint(:index)
   end
 
@@ -496,13 +475,11 @@ defmodule Explorer.Chain.InternalTransaction do
     end)
   end
 
-  @call_success_fields ~w(gas_used output)a
-
   # Validates that :call `type` changeset either has an `error` or both `gas_used` and `output`
   defp validate_call_error_or_result(changeset) do
     case get_field(changeset, :error) do
-      nil -> validate_required(changeset, @call_success_fields, message: "can't be blank for successful call")
-      _ -> validate_disallowed(changeset, @call_success_fields, message: "can't be present for failed call")
+      nil -> validate_required(changeset, [:gas_used, :output], message: "can't be blank for successful call")
+      _ -> validate_disallowed(changeset, [:output], message: "can't be present for failed call")
     end
   end
 
@@ -546,15 +523,6 @@ defmodule Explorer.Chain.InternalTransaction do
     where(query, [t], t.from_address_hash == ^address_hash)
   end
 
-  def where_address_fields_match(query, address_hash, nil) do
-    where(
-      query,
-      [it],
-      it.to_address_hash == ^address_hash or it.from_address_hash == ^address_hash or
-        it.created_contract_address_hash == ^address_hash
-    )
-  end
-
   def where_address_fields_match(query, address_hash, :to_address_hash) do
     where(query, [it], it.to_address_hash == ^address_hash)
   end
@@ -567,6 +535,19 @@ defmodule Explorer.Chain.InternalTransaction do
     where(query, [it], it.created_contract_address_hash == ^address_hash)
   end
 
+  def where_address_fields_match(query, address_hash, _) do
+    base_address_where(query, address_hash)
+  end
+
+  defp base_address_where(query, address_hash) do
+    where(
+      query,
+      [it],
+      it.to_address_hash == ^address_hash or it.from_address_hash == ^address_hash or
+        it.created_contract_address_hash == ^address_hash
+    )
+  end
+
   def where_is_different_from_parent_transaction(query) do
     where(
       query,
@@ -575,44 +556,12 @@ defmodule Explorer.Chain.InternalTransaction do
     )
   end
 
-  def where_block_number_in_period(query, from_number, to_number) when is_nil(from_number) and not is_nil(to_number) do
-    where(
-      query,
-      [it],
-      it.block_number <= ^to_number
-    )
-  end
-
-  def where_block_number_in_period(query, from_number, to_number) when not is_nil(from_number) and is_nil(to_number) do
-    where(
-      query,
-      [it],
-      it.block_number > ^from_number
-    )
-  end
-
-  def where_block_number_in_period(query, from_number, to_number) when is_nil(from_number) and is_nil(to_number) do
-    where(
-      query,
-      [it],
-      1
-    )
-  end
-
-  def where_block_number_in_period(query, from_number, to_number) do
-    where(
-      query,
-      [it],
-      it.block_number > ^from_number and it.block_number <= ^to_number
-    )
-  end
-
   def where_block_number_is_not_null(query) do
     where(query, [t], not is_nil(t.block_number))
   end
 
   @doc """
-  Filters out internal_transactions of blocks that are flagged as needing fethching
+  Filters out internal_transactions of blocks that are flagged as needing fetching
   of internal_transactions
   """
   def where_nonpending_block(query \\ nil) do

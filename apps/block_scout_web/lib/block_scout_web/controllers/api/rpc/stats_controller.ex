@@ -1,9 +1,7 @@
 defmodule BlockScoutWeb.API.RPC.StatsController do
   use BlockScoutWeb, :controller
 
-  use Explorer.Schema
-
-  alias Explorer.{Chain, Etherscan, ExchangeRates}
+  alias Explorer.{Chain, Etherscan, Market}
   alias Explorer.Chain.Cache.{AddressSum, AddressSumMinusBurnt}
   alias Explorer.Chain.Wei
 
@@ -11,7 +9,7 @@ defmodule BlockScoutWeb.API.RPC.StatsController do
     with {:contractaddress_param, {:ok, contractaddress_param}} <- fetch_contractaddress(params),
          {:format, {:ok, address_hash}} <- to_address_hash(contractaddress_param),
          {:token, {:ok, token}} <- {:token, Chain.token_from_address_hash(address_hash)} do
-      render(conn, "tokensupply.json", total_supply: Decimal.to_string(token.total_supply))
+      render(conn, "tokensupply.json", total_supply: token.total_supply && Decimal.to_string(token.total_supply))
     else
       {:contractaddress_param, :error} ->
         render(conn, :error, error: "Query parameter contract address is required")
@@ -20,7 +18,7 @@ defmodule BlockScoutWeb.API.RPC.StatsController do
         render(conn, :error, error: "Invalid contract address format")
 
       {:token, {:error, :not_found}} ->
-        render(conn, :error, error: "contract address not found")
+        render(conn, :error, error: "Contract address not found")
     end
   end
 
@@ -45,7 +43,7 @@ defmodule BlockScoutWeb.API.RPC.StatsController do
     cached_coin_total_supply_wei = AddressSumMinusBurnt.get_sum_minus_burnt()
 
     coin_total_supply_wei =
-      if Decimal.cmp(cached_coin_total_supply_wei, 0) == :gt do
+      if Decimal.compare(cached_coin_total_supply_wei, 0) == :gt do
         cached_coin_total_supply_wei
       else
         Chain.get_last_fetched_counter("sum_coin_total_supply_minus_burnt")
@@ -59,9 +57,14 @@ defmodule BlockScoutWeb.API.RPC.StatsController do
     render(conn, "coinsupply.json", total_supply: cached_coin_total_supply)
   end
 
+  def ethprice(conn, _params) do
+    rates = Market.get_coin_exchange_rate()
+
+    render(conn, "ethprice.json", rates: rates)
+  end
+
   def coinprice(conn, _params) do
-    symbol = Application.get_env(:explorer, :coin)
-    rates = ExchangeRates.lookup(symbol)
+    rates = Market.get_coin_exchange_rate()
 
     render(conn, "coinprice.json", rates: rates)
   end

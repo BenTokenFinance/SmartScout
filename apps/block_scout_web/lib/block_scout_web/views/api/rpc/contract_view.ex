@@ -3,10 +3,16 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
 
   alias BlockScoutWeb.AddressView
   alias BlockScoutWeb.API.RPC.RPCView
-  alias Explorer.Chain
+  alias Ecto.Association.NotLoaded
   alias Explorer.Chain.{Address, DecompiledSmartContract, SmartContract}
 
   defguardp is_empty_string(input) when input == "" or input == nil
+
+  def render("getcontractcreation.json", %{addresses: addresses}) do
+    contracts = addresses |> Enum.map(&address_to_response/1) |> Enum.reject(&is_nil/1)
+
+    RPCView.render("show.json", data: contracts)
+  end
 
   def render("listcontracts.json", %{contracts: contracts}) do
     contracts = Enum.map(contracts, &prepare_contract/1)
@@ -34,25 +40,6 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
     RPCView.render("show.json", data: result)
   end
 
-  defp prepare_source_code_contract(nil) do
-    %{
-      "Address" => "",
-      "SourceCode" => "",
-      "ABI" => "Contract source code not verified",
-      "ContractName" => "",
-      "CompilerVersion" => "",
-      "DecompiledSourceCode" => "",
-      "DecompilerVersion" => decompiler_version(nil),
-      "OptimizationUsed" => "",
-      "OptimizationRuns" => "",
-      "EVMVersion" => "",
-      "ConstructorArguments" => "",
-      "ExternalLibraries" => "",
-      "FileName" => "",
-      "IsProxy" => "false"
-    }
-  end
-
   defp prepare_source_code_contract(address) do
     decompiled_smart_contract = latest_decompiled_smart_contract(address.decompiled_smart_contracts)
     contract = address.smart_contract || %{}
@@ -70,6 +57,18 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
     |> set_external_libraries(contract)
     |> set_verified_contract_data(contract, address, optimization)
     |> set_proxy_info(contract)
+    |> set_compiler_settings(contract)
+  end
+
+  defp set_compiler_settings(contract_output, contract) when contract == %{}, do: contract_output
+
+  defp set_compiler_settings(contract_output, contract) do
+    if is_nil(contract.compiler_settings) do
+      contract_output
+    else
+      contract_output
+      |> Map.put(:CompilerSettings, contract.compiler_settings)
+    end
   end
 
   defp set_proxy_info(contract_output, contract) when contract == %{} do
@@ -174,11 +173,11 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
   end
 
   defp insert_additional_sources(output, address) do
-    additional_sources_from_twin = Chain.get_address_verified_twin_contract(address.hash).additional_sources
+    additional_sources_from_twin = SmartContract.get_address_verified_twin_contract(address.hash).additional_sources
 
     additional_sources =
       if AddressView.smart_contract_verified?(address),
-        do: address.smart_contract_additional_sources,
+        do: address.smart_contract.smart_contract_additional_sources,
         else: additional_sources_from_twin
 
     additional_sources_array =
@@ -220,6 +219,8 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
     }
   end
 
+  defp latest_decompiled_smart_contract(%NotLoaded{}), do: nil
+
   defp latest_decompiled_smart_contract([]), do: nil
 
   defp latest_decompiled_smart_contract(contracts) do
@@ -234,4 +235,16 @@ defmodule BlockScoutWeb.API.RPC.ContractView do
 
   defp decompiler_version(nil), do: ""
   defp decompiler_version(%DecompiledSmartContract{decompiler_version: decompiler_version}), do: decompiler_version
+
+  defp address_to_response(address) do
+    creator_hash = AddressView.from_address_hash(address)
+    creation_tx = creator_hash && AddressView.transaction_hash(address)
+
+    creation_tx &&
+      %{
+        "contractAddress" => to_string(address.hash),
+        "contractCreator" => to_string(creator_hash),
+        "txHash" => to_string(creation_tx)
+      }
+  end
 end

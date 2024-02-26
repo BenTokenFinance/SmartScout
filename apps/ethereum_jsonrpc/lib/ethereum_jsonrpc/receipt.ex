@@ -74,7 +74,14 @@ defmodule EthereumJSONRPC.Receipt do
         gas_used: 269607,
         status: :ok,
         transaction_hash: "0x3a3eb134e6792ce9403ea4188e5e79693de9e4c94e499db132be086400da79e6",
-        transaction_index: 0
+        transaction_index: 0,\
+  #{case Application.compile_env(:explorer, :chain_type) do
+    "ethereum" -> """
+            blob_gas_price: 0,\
+            blob_gas_used: 0\
+      """
+    _ -> ""
+  end}
       }
 
   Geth, when showing pre-[Byzantium](https://github.com/ethereum/EIPs/blob/master/EIPS/eip-609.md) does not include
@@ -107,7 +114,14 @@ defmodule EthereumJSONRPC.Receipt do
         gas_used: 21001,
         status: nil,
         transaction_hash: "0x5c504ed432cb51138bcf09aa5e8a410dd4a1e204ef84bfed1be16dfba1b22060",
-        transaction_index: 0
+        transaction_index: 0,\
+  #{case Application.compile_env(:explorer, :chain_type) do
+    "ethereum" -> """
+            blob_gas_price: 0,\
+            blob_gas_used: 0\
+      """
+    _ -> ""
+  end}
       }
 
   """
@@ -119,7 +133,13 @@ defmodule EthereumJSONRPC.Receipt do
           transaction_hash: String.t(),
           transaction_index: non_neg_integer()
         }
-  def elixir_to_params(
+  def elixir_to_params(elixir) do
+    elixir
+    |> do_elixir_to_params()
+    |> chain_type_fields(elixir)
+  end
+
+  def do_elixir_to_params(
         %{
           "cumulativeGasUsed" => cumulative_gas_used,
           "gasUsed" => gas_used,
@@ -138,6 +158,20 @@ defmodule EthereumJSONRPC.Receipt do
       transaction_hash: transaction_hash,
       transaction_index: transaction_index
     }
+  end
+
+  defp chain_type_fields(params, elixir) do
+    case Application.get_env(:explorer, :chain_type) do
+      "ethereum" ->
+        params
+        |> Map.merge(%{
+          blob_gas_price: Map.get(elixir, "blobGasPrice", 0),
+          blob_gas_used: Map.get(elixir, "blobGasUsed", 0)
+        })
+
+      _ ->
+        params
+    end
   end
 
   @doc """
@@ -257,7 +291,7 @@ defmodule EthereumJSONRPC.Receipt do
        do: {:ok, entry}
 
   defp entry_to_elixir({key, quantity})
-       when key in ~w(blockNumber cumulativeGasUsed gasUsed transactionIndex) do
+       when key in ~w(blockNumber cumulativeGasUsed gasUsed transactionIndex blobGasUsed blobGasPrice) do
     result =
       if is_nil(quantity) do
         nil
@@ -280,7 +314,7 @@ defmodule EthereumJSONRPC.Receipt do
       one when one in ["0x1", "0x01"] ->
         {:ok, {key, :ok}}
 
-      # pre-Byzantium / Ethereum Classic on Parity
+      # pre-Byzantium
       nil ->
         :ignore
 
@@ -300,12 +334,22 @@ defmodule EthereumJSONRPC.Receipt do
   end
 
   # Arbitrum fields
-  defp entry_to_elixir({key, _}) when key in ~w(returnData returnCode feeStats l1BlockNumber) do
+  defp entry_to_elixir({key, _}) when key in ~w(returnData returnCode feeStats l1BlockNumber gasUsedForL1) do
+    :ignore
+  end
+
+  # Metis fields
+  defp entry_to_elixir({key, _}) when key in ~w(l1GasUsed l1GasPrice l1FeeScalar l1Fee) do
     :ignore
   end
 
   # GoQuorum specific transaction receipt fields
   defp entry_to_elixir({key, _}) when key in ~w(isPrivacyMarkerTransaction) do
+    :ignore
+  end
+
+  # Optimism specific transaction receipt fields
+  defp entry_to_elixir({key, _}) when key in ~w(depositNonce depositReceiptVersion) do
     :ignore
   end
 

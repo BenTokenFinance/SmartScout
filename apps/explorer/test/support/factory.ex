@@ -4,11 +4,24 @@ defmodule Explorer.Factory do
   require Ecto.Query
 
   import Ecto.Query
+  import Explorer.Chain, only: [hash_to_lower_case_string: 1]
   import Kernel, except: [+: 2]
 
-  alias Comeonin.Bcrypt
-  alias Explorer.Accounts.{User, UserContact}
+  alias Explorer.Account.{
+    Identity,
+    TagAddress,
+    TagTransaction,
+    Watchlist,
+    WatchlistAddress
+  }
+
+  alias Explorer.Accounts.{
+    User,
+    UserContact
+  }
+
   alias Explorer.Admin.Administrator
+  alias Explorer.Chain.Beacon.{Blob, BlobTransaction}
   alias Explorer.Chain.Block.{EmissionReward, Range, Reward}
 
   alias Explorer.Chain.{
@@ -26,18 +39,172 @@ defmodule Explorer.Factory do
     Log,
     PendingBlockOperation,
     SmartContract,
+    SmartContractAdditionalSource,
     Token,
     TokenTransfer,
     Token.Instance,
     Transaction,
-    StakingPool,
-    StakingPoolsDelegator
+    Withdrawal
   }
 
   alias Explorer.SmartContract.Helper
-
+  alias Explorer.Tags.{AddressTag, AddressToTag}
   alias Explorer.Market.MarketHistory
   alias Explorer.Repo
+
+  alias Explorer.Utility.MissingBlockRange
+
+  alias Ueberauth.Strategy.Auth0
+  alias Ueberauth.Auth.Info
+  alias Ueberauth.Auth
+
+  def account_identity_factory do
+    %Identity{
+      uid: sequence("github|"),
+      email: sequence(:email, &"me-#{&1}@blockscout.com"),
+      name: sequence("John")
+    }
+  end
+
+  def auth_factory do
+    %Auth{
+      info: %Info{
+        birthday: nil,
+        description: nil,
+        email: sequence(:email, &"test_user-#{&1}@blockscout.com"),
+        first_name: nil,
+        image: sequence("https://example.com/avatar/test_user"),
+        last_name: nil,
+        location: nil,
+        name: sequence("User Test"),
+        nickname: sequence("test_user"),
+        phone: nil,
+        urls: %{profile: nil, website: nil}
+      },
+      provider: :auth0,
+      strategy: Auth0,
+      uid: sequence("blockscout|000")
+    }
+  end
+
+  def watchlist_address_factory do
+    %{
+      "address_hash" => to_string(build(:address).hash),
+      "name" => sequence("test"),
+      "notification_settings" => %{
+        "native" => %{
+          "incoming" => random_bool(),
+          "outcoming" => random_bool()
+        },
+        "ERC-20" => %{
+          "incoming" => random_bool(),
+          "outcoming" => random_bool()
+        },
+        "ERC-721" => %{
+          "incoming" => random_bool(),
+          "outcoming" => random_bool()
+        }
+      },
+      "notification_methods" => %{
+        "email" => random_bool()
+      }
+    }
+  end
+
+  def watchlist_address_db_factory(%{wl_id: id}) do
+    hash = build(:address).hash
+
+    %WatchlistAddress{
+      name: sequence("test"),
+      watchlist_id: id,
+      address_hash: hash,
+      address_hash_hash: hash_to_lower_case_string(hash),
+      watch_coin_input: random_bool(),
+      watch_coin_output: random_bool(),
+      watch_erc_20_input: random_bool(),
+      watch_erc_20_output: random_bool(),
+      watch_erc_721_input: random_bool(),
+      watch_erc_721_output: random_bool(),
+      watch_erc_1155_input: random_bool(),
+      watch_erc_1155_output: random_bool(),
+      notify_email: random_bool()
+    }
+  end
+
+  def custom_abi_factory do
+    contract_address_hash = to_string(insert(:contract_address).hash)
+
+    %{"contract_address_hash" => contract_address_hash, "name" => sequence("test"), "abi" => contract_code_info().abi}
+  end
+
+  def public_tags_request_factory do
+    %{
+      "full_name" => sequence("full name"),
+      "email" => sequence(:email, &"test_user-#{&1}@blockscout.com"),
+      "tags" => Enum.join(Enum.map(1..Enum.random(1..2), fn _ -> sequence("Tag") end), ";"),
+      "website" => sequence("website"),
+      "additional_comment" => sequence("additional_comment"),
+      "addresses" => Enum.map(1..Enum.random(1..10), fn _ -> to_string(build(:address).hash) end),
+      "company" => sequence("company"),
+      "is_owner" => random_bool()
+    }
+  end
+
+  def account_watchlist_factory do
+    %Watchlist{
+      identity: build(:account_identity)
+    }
+  end
+
+  def tag_address_factory do
+    %{"name" => sequence("name"), "address_hash" => to_string(build(:address).hash)}
+  end
+
+  def tag_transaction_factory do
+    %{"name" => sequence("name"), "transaction_hash" => to_string(insert(:transaction).hash)}
+  end
+
+  def tag_address_db_factory(%{user: user}) do
+    %TagAddress{name: sequence("name"), address_hash: build(:address).hash, identity_id: user.id}
+  end
+
+  def tag_transaction_db_factory(%{user: user}) do
+    %TagTransaction{name: sequence("name"), tx_hash: insert(:transaction).hash, identity_id: user.id}
+  end
+
+  def address_to_tag_factory do
+    %AddressToTag{
+      tag: build(:address_tag),
+      address: build(:address)
+    }
+  end
+
+  def address_tag_factory do
+    %AddressTag{
+      label: sequence("label"),
+      display_name: sequence("display_name")
+    }
+  end
+
+  def account_watchlist_address_factory do
+    hash = build(:address).hash
+
+    %WatchlistAddress{
+      name: "wallet",
+      watchlist: build(:account_watchlist),
+      address_hash: hash,
+      address_hash_hash: hash_to_lower_case_string(hash),
+      watch_coin_input: random_bool(),
+      watch_coin_output: random_bool(),
+      watch_erc_20_input: random_bool(),
+      watch_erc_20_output: random_bool(),
+      watch_erc_721_input: random_bool(),
+      watch_erc_721_output: random_bool(),
+      watch_erc_1155_input: random_bool(),
+      watch_erc_1155_output: random_bool(),
+      notify_email: random_bool()
+    }
+  end
 
   def address_factory do
     %Address{
@@ -49,6 +216,13 @@ defmodule Explorer.Factory do
     %Address.Name{
       address: build(:address),
       name: "FooContract"
+    }
+  end
+
+  def unique_address_name_factory do
+    %Address.Name{
+      address: build(:address),
+      name: sequence("FooContract")
     }
   end
 
@@ -140,7 +314,7 @@ defmodule Explorer.Factory do
     }
   end
 
-  def contract_code_info_modern_compilator do
+  def contract_code_info_modern_compiler do
     %{
       bytecode:
         "0x608060405234801561001057600080fd5b50610150806100206000396000f3fe608060405234801561001057600080fd5b50600436106100365760003560e01c806360fe47b11461003b5780636d4ce63c14610057575b600080fd5b610055600480360381019061005091906100c3565b610075565b005b61005f61007f565b60405161006c91906100ff565b60405180910390f35b8060008190555050565b60008054905090565b600080fd5b6000819050919050565b6100a08161008d565b81146100ab57600080fd5b50565b6000813590506100bd81610097565b92915050565b6000602082840312156100d9576100d8610088565b5b60006100e7848285016100ae565b91505092915050565b6100f98161008d565b82525050565b600060208201905061011460008301846100f0565b9291505056fea2646970667358221220d5d429d16f620053da9907372b66303e007b04bfd112159cff82cb67ff40da4264736f6c634300080a0033",
@@ -361,7 +535,7 @@ defmodule Explorer.Factory do
         %Transaction{index: nil} = transaction,
         # The `transaction.block` must be consensus.  Non-consensus blocks can only be associated with the
         # `transaction_forks`.
-        %Block{consensus: true, hash: block_hash, number: block_number},
+        %Block{consensus: true, hash: block_hash, number: block_number, timestamp: timestamp},
         collated_params
       )
       when is_list(collated_params) do
@@ -370,6 +544,8 @@ defmodule Explorer.Factory do
     cumulative_gas_used = collated_params[:cumulative_gas_used] || Enum.random(21_000..100_000)
     gas_used = collated_params[:gas_used] || Enum.random(21_000..100_000)
     status = Keyword.get(collated_params, :status, Enum.random([:ok, :error]))
+    block_timestamp = Keyword.get(collated_params, :block_timestamp, timestamp)
+    block_consensus = Keyword.get(collated_params, :block_consensus, true)
 
     error = (status == :error && collated_params[:error]) || nil
 
@@ -383,7 +559,9 @@ defmodule Explorer.Factory do
       error: error,
       gas_used: gas_used,
       index: next_transaction_index,
-      status: status
+      status: status,
+      block_timestamp: block_timestamp,
+      block_consensus: block_consensus
     })
     |> Repo.update!()
     |> Repo.preload(:block)
@@ -429,11 +607,7 @@ defmodule Explorer.Factory do
   end
 
   def pending_block_operation_factory do
-    %PendingBlockOperation{
-      # caller MUST supply block
-      # all operations will default to false
-      fetch_internal_transactions: false
-    }
+    %PendingBlockOperation{}
   end
 
   def internal_transaction_factory() do
@@ -507,8 +681,7 @@ defmodule Explorer.Factory do
       index: sequence("log_index", & &1),
       second_topic: nil,
       third_topic: nil,
-      transaction: build(:transaction),
-      type: sequence("0x")
+      transaction: build(:transaction)
     }
   end
 
@@ -520,8 +693,15 @@ defmodule Explorer.Factory do
       decimals: 18,
       contract_address: build(:address),
       type: "ERC-20",
-      cataloged: true
+      cataloged: true,
+      icon_url: sequence("https://example.com/icon"),
+      fiat_value: 10.1,
+      is_verified_via_admin_panel: Enum.random([true, false])
     }
+  end
+
+  def unique_token_factory do
+    Map.replace(token_factory(), :name, sequence("Infinite Token"))
   end
 
   def token_transfer_log_factory do
@@ -568,7 +748,7 @@ defmodule Explorer.Factory do
     contract_code = Map.fetch!(contract_code_info(), :bytecode)
 
     token_address = insert(:contract_address, contract_code: contract_code)
-    insert(:token, contract_address: token_address)
+    token = insert(:token, contract_address: token_address)
 
     %TokenTransfer{
       block: build(:block),
@@ -577,8 +757,10 @@ defmodule Explorer.Factory do
       from_address: from_address,
       to_address: to_address,
       token_contract_address: token_address,
+      token_type: token.type,
       transaction: log.transaction,
-      log_index: log.index
+      log_index: log.index,
+      block_consensus: true
     }
   end
 
@@ -632,7 +814,8 @@ defmodule Explorer.Factory do
       s: sequence(:transaction_s, & &1),
       to_address: build(:address),
       v: Enum.random(27..30),
-      value: Enum.random(1..100_000)
+      value: Enum.random(1..100_000),
+      block_timestamp: DateTime.utc_now()
     }
   end
 
@@ -678,7 +861,8 @@ defmodule Explorer.Factory do
   def smart_contract_factory do
     contract_code_info = contract_code_info()
 
-    bytecode_md5 = Helper.contract_code_md5(contract_code_info.bytecode)
+    {:ok, data} = Explorer.Chain.Data.cast(contract_code_info.bytecode)
+    bytecode_md5 = Helper.contract_code_md5(data.bytes)
 
     %SmartContract{
       address_hash: insert(:address, contract_code: contract_code_info.bytecode, verified: true).hash,
@@ -687,8 +871,19 @@ defmodule Explorer.Factory do
       contract_source_code: contract_code_info.source_code,
       optimization: contract_code_info.optimized,
       abi: contract_code_info.abi,
-      contract_code_md5: bytecode_md5
+      contract_code_md5: bytecode_md5,
+      verified_via_sourcify: Enum.random([true, false]),
+      is_vyper_contract: Enum.random([true, false]),
+      verified_via_eth_bytecode_db: Enum.random([true, false])
     }
+  end
+
+  def smart_contract_additional_source_factory do
+    %SmartContractAdditionalSource{}
+  end
+
+  def unique_smart_contract_factory do
+    Map.replace(smart_contract_factory(), :name, sequence("SimpleStorage"))
   end
 
   def decompiled_smart_contract_factory do
@@ -703,10 +898,22 @@ defmodule Explorer.Factory do
 
   def token_instance_factory do
     %Instance{
-      token_contract_address_hash: build(:address),
-      token_id: 5,
-      metadata: %{key: "value"},
-      error: nil
+      token_contract_address_hash: insert(:token).contract_address_hash,
+      token_id: sequence("token_id", & &1),
+      metadata: %{
+        "key" => sequence("value"),
+        "image_url" => sequence("image_url"),
+        "animation_url" => sequence("image_url"),
+        "external_url" => sequence("external_url")
+      },
+      error: nil,
+      owner_address_hash: insert(:address).hash
+    }
+  end
+
+  def log_index_factory do
+    %{
+      log_index: sequence("token_id", & &1)
     }
   end
 
@@ -721,6 +928,15 @@ defmodule Explorer.Factory do
     }
   end
 
+  def address_coin_balance_factory do
+    %CoinBalance{
+      address: insert(:address),
+      block_number: insert(:block).number,
+      value: Enum.random(1..100_000_000),
+      value_fetched_at: DateTime.utc_now()
+    }
+  end
+
   def address_current_token_balance_factory do
     %CurrentTokenBalance{
       address: build(:address),
@@ -728,6 +944,71 @@ defmodule Explorer.Factory do
       block_number: block_number(),
       value: Enum.random(1..100_000),
       value_fetched_at: DateTime.utc_now()
+    }
+  end
+
+  def address_current_token_balance_with_token_id_factory do
+    {token_type, token_id} = Enum.random([{"ERC-20", nil}, {"ERC-721", nil}, {"ERC-1155", Enum.random(1..100_000)}])
+
+    %CurrentTokenBalance{
+      address: build(:address),
+      token_contract_address_hash: insert(:token, type: token_type).contract_address_hash,
+      block_number: block_number(),
+      value: Enum.random(1_000_000_000_000_000_000..10_000_000_000_000_000_000),
+      value_fetched_at: DateTime.utc_now(),
+      token_id: token_id,
+      token_type: token_type
+    }
+  end
+
+  def address_current_token_balance_with_token_id_and_fixed_token_type_factory(%{
+        token_type: token_type,
+        address: address,
+        token_id: token_id,
+        token_contract_address_hash: token_contract_address_hash,
+        value: value
+      }) do
+    %CurrentTokenBalance{
+      address: address,
+      token_contract_address_hash: token_contract_address_hash,
+      block_number: block_number(),
+      value: value,
+      value_fetched_at: DateTime.utc_now(),
+      token_id: token_id,
+      token_type: token_type
+    }
+  end
+
+  def address_current_token_balance_with_token_id_and_fixed_token_type_factory(%{
+        token_type: token_type,
+        address: address,
+        token_id: token_id,
+        token_contract_address_hash: token_contract_address_hash
+      }) do
+    %CurrentTokenBalance{
+      address: address,
+      token_contract_address_hash: token_contract_address_hash,
+      block_number: block_number(),
+      value: Enum.random(1_000_000_000_000_000_000..10_000_000_000_000_000_000),
+      value_fetched_at: DateTime.utc_now(),
+      token_id: token_id,
+      token_type: token_type
+    }
+  end
+
+  def address_current_token_balance_with_token_id_and_fixed_token_type_factory(%{
+        token_type: token_type,
+        address: address,
+        token_id: token_id
+      }) do
+    %CurrentTokenBalance{
+      address: address,
+      token_contract_address_hash: insert(:token, type: token_type).contract_address_hash,
+      block_number: block_number(),
+      value: Enum.random(1_000_000_000_000_000_000..10_000_000_000_000_000_000),
+      value_fetched_at: DateTime.utc_now(),
+      token_id: token_id,
+      token_type: token_type
     }
   end
 
@@ -765,7 +1046,7 @@ defmodule Explorer.Factory do
 
     %User{
       username: username,
-      password_hash: Bcrypt.hashpwsalt("password"),
+      password_hash: Bcrypt.hash_pwd_salt("password"),
       contacts: [
         %UserContact{
           email: "#{username}@blockscout",
@@ -783,35 +1064,56 @@ defmodule Explorer.Factory do
     }
   end
 
-  def staking_pool_factory do
-    wei_per_ether = 1_000_000_000_000_000_000
-
-    %StakingPool{
-      staking_address_hash: address_hash(),
-      mining_address_hash: address_hash(),
-      banned_until: 0,
-      delegators_count: 0,
-      is_active: true,
-      is_banned: false,
-      is_validator: true,
-      total_staked_amount: wei_per_ether * 500,
-      self_staked_amount: wei_per_ether * 500,
-      was_banned_count: 0,
-      was_validator_count: 1
+  def missing_block_range_factory do
+    %MissingBlockRange{
+      from_number: 1,
+      to_number: 0
     }
   end
 
-  def staking_pools_delegator_factory do
-    wei_per_ether = 1_000_000_000_000_000_000
+  def withdrawal_factory do
+    block = build(:block)
+    address = build(:address)
 
-    %StakingPoolsDelegator{
-      staking_address_hash: address_hash(),
-      address_hash: address_hash(),
-      max_ordered_withdraw_allowed: wei_per_ether * 100,
-      max_withdraw_allowed: wei_per_ether * 50,
-      ordered_withdraw: wei_per_ether * 600,
-      stake_amount: wei_per_ether * 200,
-      ordered_withdraw_epoch: 2
+    %Withdrawal{
+      index: withdrawal_index(),
+      validator_index: withdrawal_validator_index(),
+      amount: Enum.random(1..100_000),
+      block: block,
+      block_hash: block.hash,
+      address: address,
+      address_hash: address.hash
     }
   end
+
+  def withdrawal_index do
+    sequence("withdrawal_index", & &1)
+  end
+
+  def withdrawal_validator_index do
+    sequence("withdrawal_validator_index", & &1)
+  end
+
+  def blob_factory do
+    kzg_commitment = data(:kzg_commitment)
+
+    %Blob{
+      hash: Blob.hash(kzg_commitment.bytes),
+      blob_data: data(:blob_data),
+      kzg_commitment: kzg_commitment,
+      kzg_proof: data(:kzg_proof)
+    }
+  end
+
+  def blob_transaction_factory do
+    %BlobTransaction{
+      hash: insert(:transaction) |> with_block() |> Map.get(:hash),
+      max_fee_per_blob_gas: Decimal.new(1_000_000_000),
+      blob_gas_price: Decimal.new(1_000_000_000),
+      blob_gas_used: Decimal.new(131_072),
+      blob_versioned_hashes: []
+    }
+  end
+
+  def random_bool, do: Enum.random([true, false])
 end

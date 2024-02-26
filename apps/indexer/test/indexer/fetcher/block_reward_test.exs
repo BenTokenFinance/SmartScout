@@ -30,7 +30,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         transport: EthereumJSONRPC.Mox,
         transport_options: [],
         # Which one does not matter, so pick one
-        variant: EthereumJSONRPC.Parity
+        variant: EthereumJSONRPC.Nethermind
       ]
     }
   end
@@ -117,7 +117,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         }
       end)
 
-      res = eth_block_number_fake_response(block_quantity)
+      _res = eth_block_number_fake_response(block_quantity)
 
       assert count(Chain.Block.Reward) == 0
 
@@ -132,7 +132,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
           end
         end)
 
-      Process.register(pid, Indexer.Fetcher.CoinBalance)
+      Process.register(pid, Indexer.Fetcher.CoinBalance.Catchup)
 
       assert :ok = BlockReward.async_fetch([block_number])
 
@@ -192,7 +192,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         }
       end)
 
-      res = eth_block_number_fake_response(block_quantity)
+      _res = eth_block_number_fake_response(block_quantity)
 
       parent = self()
 
@@ -205,7 +205,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
           end
         end)
 
-      Process.register(pid, Indexer.Fetcher.CoinBalance)
+      Process.register(pid, Indexer.Fetcher.CoinBalance.Catchup)
 
       assert :ok = BlockReward.async_fetch([block_number])
 
@@ -324,7 +324,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         }
       end)
 
-      res = eth_block_number_fake_response(block_quantity)
+      _res = eth_block_number_fake_response(block_quantity)
 
       assert count(Chain.Block.Reward) == 0
       assert count(Chain.Address.CoinBalance) == 0
@@ -340,7 +340,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
           end
         end)
 
-      Process.register(pid, Indexer.Fetcher.CoinBalance)
+      Process.register(pid, Indexer.Fetcher.CoinBalance.Catchup)
 
       assert :ok = BlockReward.run([block_number], json_rpc_named_arguments)
 
@@ -414,7 +414,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         }
       end)
 
-      res = eth_block_number_fake_response(block_quantity)
+      _res = eth_block_number_fake_response(block_quantity)
 
       assert count(Chain.Block.Reward) == 0
       assert count(Chain.Address.CoinBalance) == 0
@@ -430,7 +430,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
           end
         end)
 
-      Process.register(pid, Indexer.Fetcher.CoinBalance)
+      Process.register(pid, Indexer.Fetcher.CoinBalance.Catchup)
 
       assert :ok = BlockReward.run([block_number], json_rpc_named_arguments)
 
@@ -494,7 +494,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         }
       end)
 
-      res = eth_block_number_fake_response(block_quantity)
+      _res = eth_block_number_fake_response(block_quantity)
 
       assert count(Chain.Block.Reward) == 1
       assert count(Chain.Address.CoinBalance) == 1
@@ -514,7 +514,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
           end
         end)
 
-      Process.register(pid, Indexer.Fetcher.CoinBalance)
+      Process.register(pid, Indexer.Fetcher.CoinBalance.Catchup)
 
       assert :ok = BlockReward.run([block_number], json_rpc_named_arguments)
 
@@ -635,7 +635,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
         }
       end)
 
-      res = eth_block_number_fake_response(block_quantity)
+      _res = eth_block_number_fake_response(block_quantity)
 
       assert count(Chain.Block.Reward) == 0
       assert count(Chain.Address.CoinBalance) == 0
@@ -651,7 +651,7 @@ defmodule Indexer.Fetcher.BlockRewardTest do
           end
         end)
 
-      Process.register(pid, Indexer.Fetcher.CoinBalance)
+      Process.register(pid, Indexer.Fetcher.CoinBalance.Catchup)
 
       assert {:retry, [^error_block_number]} =
                BlockReward.run([block_number, error_block_number], json_rpc_named_arguments)

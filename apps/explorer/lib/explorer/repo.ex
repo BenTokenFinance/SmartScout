@@ -128,10 +128,106 @@ defmodule Explorer.Repo do
     def replica, do: Explorer.Repo.Replica1
   end
 
+  def account_repo, do: Explorer.Repo.Account
+
   defmodule Replica1 do
     use Ecto.Repo,
       otp_app: :explorer,
       adapter: Ecto.Adapters.Postgres,
       read_only: true
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule Account do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule PolygonEdge do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule PolygonZkevm do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule RSK do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule Shibarium do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule Suave do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule Beacon do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule BridgedTokens do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
+  end
+
+  defmodule Filecoin do
+    use Ecto.Repo,
+      otp_app: :explorer,
+      adapter: Ecto.Adapters.Postgres
+
+    def init(_, opts) do
+      ConfigHelper.init_repo_module(__MODULE__, opts)
+    end
   end
 end

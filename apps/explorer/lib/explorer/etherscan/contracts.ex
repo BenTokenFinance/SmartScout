@@ -7,14 +7,20 @@ defmodule Explorer.Etherscan.Contracts do
 
   import Ecto.Query,
     only: [
-      from: 2
+      from: 2,
+      where: 3
     ]
 
-  alias Explorer.{Chain, Repo}
+  alias Explorer.Repo
   alias Explorer.Chain.{Address, Hash, SmartContract}
+  alias Explorer.Chain.SmartContract.Proxy
+  alias Explorer.Chain.SmartContract.Proxy.EIP1167
 
+  @doc """
+    Returns address with preloaded SmartContract and proxy info if it exists
+  """
   @spec address_hash_to_address_with_source_code(Hash.Address.t()) :: Address.t() | nil
-  def address_hash_to_address_with_source_code(address_hash) do
+  def address_hash_to_address_with_source_code(address_hash, twin_needed? \\ true) do
     result =
       case Repo.replica().get(Address, address_hash) do
         nil ->
@@ -23,9 +29,8 @@ defmodule Explorer.Etherscan.Contracts do
         address ->
           address_with_smart_contract =
             Repo.replica().preload(address, [
-              :smart_contract,
-              :decompiled_smart_contracts,
-              :smart_contract_additional_sources
+              [smart_contract: :smart_contract_additional_sources],
+              :decompiled_smart_contracts
             ])
 
           if address_with_smart_contract.smart_contract do
@@ -37,19 +42,12 @@ defmodule Explorer.Etherscan.Contracts do
             }
           else
             address_verified_twin_contract =
-              Chain.get_minimal_proxy_template(address_hash) ||
-                Chain.get_address_verified_twin_contract(address_hash).verified_contract
+              EIP1167.get_implementation_address(address_hash) || maybe_fetch_twin(twin_needed?, address_hash)
 
-            if address_verified_twin_contract do
-              formatted_code = format_source_code_output(address_verified_twin_contract)
-
-              %{
-                address_with_smart_contract
-                | smart_contract: %{address_verified_twin_contract | contract_source_code: formatted_code}
-              }
-            else
-              address_with_smart_contract
-            end
+            compose_address_with_smart_contract(
+              address_with_smart_contract,
+              address_verified_twin_contract
+            )
           end
       end
 
@@ -57,15 +55,31 @@ defmodule Explorer.Etherscan.Contracts do
     |> append_proxy_info()
   end
 
+  defp maybe_fetch_twin(twin_needed?, address_hash),
+    do: if(twin_needed?, do: SmartContract.get_address_verified_twin_contract(address_hash).verified_contract)
+
+  defp compose_address_with_smart_contract(address_with_smart_contract, address_verified_twin_contract) do
+    if address_verified_twin_contract do
+      formatted_code = format_source_code_output(address_verified_twin_contract)
+
+      %{
+        address_with_smart_contract
+        | smart_contract: %{address_verified_twin_contract | contract_source_code: formatted_code}
+      }
+    else
+      address_with_smart_contract
+    end
+  end
+
   def append_proxy_info(%Address{smart_contract: smart_contract} = address) when not is_nil(smart_contract) do
     updated_smart_contract =
-      if Chain.proxy_contract?(address.hash, smart_contract.abi) do
+      if Proxy.proxy_contract?(smart_contract) do
         smart_contract
         |> Map.put(:is_proxy, true)
         |> Map.put(
           :implementation_address_hash_string,
-          address.hash
-          |> Chain.get_implementation_address_hash(smart_contract.abi)
+          smart_contract
+          |> SmartContract.get_implementation_address_hash()
           |> Tuple.to_list()
           |> List.first()
         )
@@ -80,7 +94,7 @@ defmodule Explorer.Etherscan.Contracts do
 
   def append_proxy_info(address), do: address
 
-  def list_verified_contracts(limit, offset) do
+  def list_verified_contracts(limit, offset, opts) do
     query =
       from(
         smart_contract in SmartContract,
@@ -90,7 +104,29 @@ defmodule Explorer.Etherscan.Contracts do
         preload: [:address]
       )
 
-    query
+    verified_at_start_timestamp_exist? = Map.has_key?(opts, :verified_at_start_timestamp)
+    verified_at_end_timestamp_exist? = Map.has_key?(opts, :verified_at_end_timestamp)
+
+    query_in_timestamp_range =
+      cond do
+        verified_at_start_timestamp_exist? && verified_at_end_timestamp_exist? ->
+          query
+          |> where([smart_contract], smart_contract.inserted_at >= ^opts.verified_at_start_timestamp)
+          |> where([smart_contract], smart_contract.inserted_at < ^opts.verified_at_end_timestamp)
+
+        verified_at_start_timestamp_exist? ->
+          query
+          |> where([smart_contract], smart_contract.inserted_at >= ^opts.verified_at_start_timestamp)
+
+        verified_at_end_timestamp_exist? ->
+          query
+          |> where([smart_contract], smart_contract.inserted_at < ^opts.verified_at_end_timestamp)
+
+        true ->
+          query
+      end
+
+    query_in_timestamp_range
     |> Repo.replica().all()
     |> Enum.map(fn smart_contract ->
       Map.put(smart_contract.address, :smart_contract, smart_contract)
