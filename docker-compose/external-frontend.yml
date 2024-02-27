@@ -24,7 +24,7 @@ services:
       file: ./services/backend.yml
       service: backend
     links:
-      - db:database
+      - db1:database
     environment:
         ETHEREUM_JSONRPC_VARIANT: 'ganache'
         ETHEREUM_JSONRPC_HTTP_URL: https://smartbch.greyh.at
