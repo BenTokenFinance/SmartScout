@@ -36,7 +36,7 @@ services:
         ADMIN_PANEL_ENABLED: ""
         RELEASE_VERSION: 6.2.0
     links:
-      - db:database
+      - db1:database
     environment:
         ETHEREUM_JSONRPC_HTTP_URL: http://host.docker.internal:8545/
         ETHEREUM_JSONRPC_TRACE_URL: http://host.docker.internal:8545/
