@@ -10,6 +10,7 @@ git pull origin sbch
 # docker compose -f external-frontend.yml build
 
 # ??̨????blockscout????
-FRONT_PROXY_PASS=http://host.docker.internal:3000 docker compose -f external-frontend.yml up --build -d
+# FRONT_PROXY_PASS=http://host.docker.internal:3000 docker compose -f external-frontend.yml up --build -d
+FRONT_PROXY_PASS=http://host.docker.internal:3000 docker compose -f external-frontend.yml up -d
 
 echo "Blockscout has been successfully updated and started."
