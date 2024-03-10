@@ -53,13 +53,6 @@ services:
       file: ./services/sig-provider.yml
       service: sig-provider
 
-  frontend:
-    depends_on:
-      - backend
-    extends:
-      file: ./services/frontend.yml
-      service: frontend
-
   stats-db-init:
     extends:
       file: ./services/stats.yml
@@ -82,7 +75,6 @@ services:
   proxy:
     depends_on:
       - backend
-      - frontend
       - stats
     extends:
       file: ./services/nginx.yml
