@@ -41,6 +41,8 @@ services:
         ETHEREUM_JSONRPC_VARIANT: ganache
         ETHEREUM_JSONRPC_HTTP_URL: https://rpc.smartbch.org
         CHAIN_ID: '10000'
+        INDEXER_DISABLE_INTERNAL_TRANSACTIONS_FETCHER: 'true'
+        INDEXER_DISABLE_PENDING_TRANSACTIONS_FETCHER: 'true'
 
   visualizer:
     extends:
