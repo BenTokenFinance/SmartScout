@@ -11,7 +11,7 @@ services:
       - |
         chown -R 2000:2000 /var/lib/postgresql/data
 
-  db:
+  db1:
     depends_on:
       db-init:
         condition: service_completed_successfully

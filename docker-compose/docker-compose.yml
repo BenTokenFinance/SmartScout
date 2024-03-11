@@ -11,14 +11,14 @@ services:
       file: ./services/db.yml
       service: db-init
 
-  db:
+  db1:
     extends:
       file: ./services/db.yml
-      service: db
+      service: db1
 
   backend:
     depends_on:
-      - db
+      - db1
       - redis-db
     extends:
       file: ./services/backend.yml
@@ -36,7 +36,7 @@ services:
         ADMIN_PANEL_ENABLED: ""
         RELEASE_VERSION: 6.2.2
     links:
-      - db:database
+      - db1:database
     environment:
         ETHEREUM_JSONRPC_HTTP_URL: http://host.docker.internal:8545/
         ETHEREUM_JSONRPC_TRACE_URL: http://host.docker.internal:8545/
