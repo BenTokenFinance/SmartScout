@@ -2,6 +2,7 @@
 
 /* Phoenix flash messages */
 .alert:empty {
+  display: block;
   display: none;
 }
 
