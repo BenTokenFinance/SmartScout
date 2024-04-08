@@ -41,8 +41,8 @@ services:
       - db1:database
     environment:
         ETHEREUM_JSONRPC_VARIANT: ganache
-        ETHEREUM_JSONRPC_TRACE_URL: http://sbchd:8545
-        ETHEREUM_JSONRPC_HTTP_URL: http://sbchd:8545
+        ETHEREUM_JSONRPC_TRACE_URL: http://0.0.0.0:8548
+        ETHEREUM_JSONRPC_HTTP_URL: http://0.0.0.0:8548
         CHAIN_ID: '10000'
 
   visualizer:
