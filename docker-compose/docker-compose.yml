@@ -39,13 +39,51 @@ services:
       - db1:database
     environment:
         ETHEREUM_JSONRPC_VARIANT: ganache
-        ETHEREUM_JSONRPC_TRACE_URL: http://localhost:8548
-        ETHEREUM_JSONRPC_HTTP_URL: http://localhost:8548
+        ETHEREUM_JSONRPC_TRACE_URL: http://127.0.0.1:8548
+        ETHEREUM_JSONRPC_HTTP_URL: http://127.0.0.1:8548
         CHAIN_ID: '10000'
+
+  visualizer:
+    extends:
+      file: ./services/visualizer.yml
+      service: visualizer
+
+  sig-provider:
+    extends:
+      file: ./services/sig-provider.yml
+      service: sig-provider
+
+  frontend:
+    depends_on:
+      - backend
+    extends:
+      file: ./services/frontend.yml
+      service: frontend
+
+  stats-db-init:
+    extends:
+      file: ./services/stats.yml
+      service: stats-db-init
+
+  stats-db:
+    depends_on:
+      - backend
+    extends:
+      file: ./services/stats.yml
+      service: stats-db
+
+  stats:
+    depends_on:
+      - stats-db
+    extends:
+      file: ./services/stats.yml
+      service: stats
 
   proxy:
     depends_on:
       - backend
+      - frontend
+      - stats
     extends:
       file: ./services/nginx.yml
       service: proxy
