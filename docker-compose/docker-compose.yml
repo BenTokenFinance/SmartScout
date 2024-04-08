@@ -12,6 +12,8 @@ services:
       service: db-init
 
   db1:
+    depends_on:
+      - db-init
     extends:
       file: ./services/db.yml
       service: db1
@@ -68,6 +70,7 @@ services:
   stats-db:
     depends_on:
       - backend
+      - stats-db-init
     extends:
       file: ./services/stats.yml
       service: stats-db
