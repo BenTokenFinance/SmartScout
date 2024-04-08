@@ -17,9 +17,9 @@ services:
       service: db1
 
   backend:
-    depends_on:
-      - db1
-      - redis-db
+    # depends_on:
+    #   - db1
+    #   - redis-db
     extends:
       file: ./services/backend.yml
       service: backend
