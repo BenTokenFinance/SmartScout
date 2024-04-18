@@ -39,7 +39,6 @@ services:
 
   stats:
     image: blockscout-stats:local
-    pull_policy: always
     platform: linux/amd64
     restart: always
     container_name: 'stats'
