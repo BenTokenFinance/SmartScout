@@ -38,7 +38,7 @@ services:
       start_period: 10s
 
   stats:
-    image: docker.io/library/blockscout-stats:local
+    image: blockscout-stats:local
     pull_policy: always
     platform: linux/amd64
     restart: always
