@@ -35,6 +35,7 @@ services:
         CACHE_ADDRESS_WITH_BALANCES_UPDATE_INTERVAL: ""
         ADMIN_PANEL_ENABLED: ""
         RELEASE_VERSION: 6.2.2
+        INDEXER_MEMORY_LIMIT: 2G
     links:
       - db1:database
     environment:
