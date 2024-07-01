@@ -18,3 +18,8 @@ services:
       #   published: 80
       # - target: 8081
       #   published: 80
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10g"
+        max-file: "1"
