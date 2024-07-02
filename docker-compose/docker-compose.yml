@@ -17,9 +17,6 @@ services:
       service: db1
 
   backend:
-    depends_on:
-      - db1
-      - redis-db
     extends:
       file: ./services/backend.yml
       service: backend
@@ -67,22 +64,16 @@ services:
       service: stats-db-init
 
   stats-db:
-    depends_on:
-      - backend
     extends:
       file: ./services/stats.yml
       service: stats-db
 
   stats:
-    depends_on:
-      - stats-db
     extends:
       file: ./services/stats.yml
       service: stats
 
   proxy:
-    depends_on:
-      - backend
       # - frontend
       - stats
     extends:
