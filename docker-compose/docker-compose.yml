@@ -74,8 +74,6 @@ services:
       service: stats
 
   proxy:
-      # - frontend
-      - stats
     extends:
       file: ./services/nginx.yml
       service: proxy
