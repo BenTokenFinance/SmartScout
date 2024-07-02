@@ -4,7 +4,7 @@ services:
   stats-db-init:
     image: postgres:15
     volumes:
-      - ./data/stats-db-data:/var/lib/postgresql/data
+      - /mnt/sdb/blockscout/data/stats-db-data:/var/lib/postgresql/data
     entrypoint:
       - sh
       - -c
@@ -29,7 +29,7 @@ services:
       - target: 5432
         published: 7433
     volumes:
-      - ./data/stats-db-data:/var/lib/postgresql/data
+      - /mnt/sdb/blockscout/data/stats-db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U stats -d stats"]
       interval: 10s
